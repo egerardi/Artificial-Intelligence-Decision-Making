@@ -5,6 +5,9 @@ object MasterGameProcess {
    var decision : Int = _;
    var changeRow : Int = _;
    var changeCol : Int = _;
+   //var playerPosition : PlayerPosition = _;
+   var strDirection : String = _;
+   var signal : Int = _;
    
    var frame = new JFrame();
    
@@ -13,76 +16,87 @@ object MasterGameProcess {
        var numberOfMoves: Int = 0;
        
        var framework = new Framework(20,40);
-       framework.setPlayerPosition(18, 1, 18, 1)
+       framework.setPlayerPosition(18, 1, 18, 1);
+       framework.setTextJLabel_Location(); 
        
-       Thread.sleep(100);
+       Thread.sleep(3000);
        
-//       while (! foundPortal) {
+       while (! foundPortal) {
 //           println();  
-//         
-//           decision = DecisionFactory.Decision();  // Get Decision
-//           //Store change in row or col (using changeRow and changeCol)
-//           if (decision == 0) //   0 - stay (don't move)
-//           {
-//               changeRow = 0;
-//               changeCol = 0;
-//           }
-//           else if (decision == 1) //   1 - move up
-//           {
-//               changeRow = -1;
-//               changeCol = 0;
-//               println("Move Up");
-//           }
-//           else if (decision == 2) //   2 - move down
-//           {
-//               changeRow = 1;
-//               changeCol = 0;
-//               println("Move Down");
-//           }
-//           else if (decision == 3) //   3 - move left
-//           {
-//               changeRow = 0;
-//               changeCol = -1;
-//               println("Move Left");
-//           }
-//           else // (decision == 4) //   4 - move right
-//           {
-//               changeRow = 0;
-//               changeCol = 1;
-//               println("Move Right");
-//           }
-//           
-//           playerPosition = framework.getPlayerPosition();
-//           
-//           if (framework.getGridPiece(playerPosition.row + changeRow, playerPosition.col + changeCol) == GameboardPiece.getWall())  //If Hit Wall
-//           {
-//               DecisionFactory.receiveSignal(-1); //Wall Signal
-//           }
-//           else if (framework.getGridPiece(playerPosition.row + changeRow, playerPosition.col + changeCol) != GameboardPiece.getPortal()) //If NOT Portal
-//           {
-//               DecisionFactory.receiveSignal(1); //Wall Signal
-//               if (!(playerPosition.row == playerPosition.row + changeRow && playerPosition.col == playerPosition.col + changeCol)) //If Stay
-//               {
-//                   framework.setPlayerPosition(playerPosition.row, playerPosition.col, playerPosition.row + changeRow, playerPosition.col + changeCol);
-//               }
-//           }
-//           else //If Portal
-//           {
-//               framework.setPlayerPosition(playerPosition.row, playerPosition.col, playerPosition.row, playerPosition.col);
-//               DecisionFactory.receiveSignal(2); //Portal Signal
-//               foundPortal = true;
-//           }
-//         
-//           numberOfMoves = numberOfMoves + 1;
-//           
-//           //framework.printGrid();
-//           
-//           //Thread.sleep(500);
-//       }
-//       
-//       println();
-//       println();
-//       
-//       println("PLayer Found the Portal in " + numberOfMoves + " moves.");
+         
+           decision = DecisionFactory.Decision();  // Get Decision
+           //Store change in row or col (using changeRow and changeCol)
+           if (decision == 0) //   0 - stay (don't move)
+           {
+               changeRow = 0;
+               changeCol = 0;
+               strDirection = "Stay";
+           }
+           else if (decision == 1) //   1 - move up
+           {
+               changeRow = -1;
+               changeCol = 0;
+               strDirection = "Move Up";
+           }
+           else if (decision == 2) //   2 - move down
+           {
+               changeRow = 1;
+               changeCol = 0;
+               strDirection = "Move Down";
+           }
+           else if (decision == 3) //   3 - move left
+           {
+               changeRow = 0;
+               changeCol = -1;
+               strDirection = "Move Left";
+           }
+           else // (decision == 4) //   4 - move right
+           {
+               changeRow = 0;
+               changeCol = 1;
+               strDirection = "Move Right";
+           }
+           
+           //playerPosition = framework.getPlayerPosition();
+           
+           
+           if (framework.getGridPiece(PlayerPosition.getRow() + changeRow, PlayerPosition.getCol() + changeCol) == GameboardPiece.getWall())  //If Hit Wall
+           {
+               signal = -1;
+           }
+           else if (framework.getGridPiece(PlayerPosition.getRow() + changeRow, PlayerPosition.getCol() + changeCol) != GameboardPiece.getPortal()) //If NOT Portal
+           {
+               signal = 1; //Successful Move
+               if (!(PlayerPosition.getRow() == PlayerPosition.getRow() + changeRow && PlayerPosition.getCol() == PlayerPosition.getCol() + changeCol)) //If Stay
+               {
+                   framework.setPlayerPosition(PlayerPosition.getRow(), PlayerPosition.getCol(), PlayerPosition.getRow() + changeRow, PlayerPosition.getCol() + changeCol);
+               }
+           }
+           else //If Portal
+           {
+               framework.setPlayerPosition(PlayerPosition.getRow(), PlayerPosition.getCol(), PlayerPosition.getRow(), PlayerPosition.getCol());
+               signal = 2; //Portal Signal
+               foundPortal = true;
+           }
+         
+//           foundPortal = true; // <- REMOVE ******************************************************************************************
+           
+           DecisionFactory.receiveSignal(signal);
+           
+           numberOfMoves = numberOfMoves + 1;
+           
+           framework.setTextJLabel_MoveDirection(strDirection);
+           framework.setTextJLabel_Location();
+           framework.setTextJLabel_Signal(signal);
+           framework.setTextJLabel_MoveCount(numberOfMoves.toString());
+           
+           
+           Thread.sleep(3000);
+       }
+       
+       println();
+       println();
+       
+       println("Player Found the Portal in " + numberOfMoves + " moves.");
    }
 }
