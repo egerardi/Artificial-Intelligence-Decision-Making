@@ -74,12 +74,10 @@ object MasterGameProcess {
            }
            else //If Portal
            {
-               framework.setPlayerPosition(PlayerPosition.getRow(), PlayerPosition.getCol(), PlayerPosition.getRow(), PlayerPosition.getCol());
+               framework.setPlayerPosition(PlayerPosition.getRow(), PlayerPosition.getCol(), -1, -1);
                signal = 2; //Portal Signal
                foundPortal = true;
            }
-         
-//           foundPortal = true; // <- REMOVE ******************************************************************************************
            
            DecisionFactory.receiveSignal(signal);
            
