@@ -2,6 +2,11 @@ import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 
+/** Author: Eric Gerardi
+ *  
+ *  The Framework class modifies MasterGameProcess.frame to display a visual grid (Swing)
+ *  for the user to observe the actions from the DecisionFactory Class
+ */
 
 public class Framework {
 	
