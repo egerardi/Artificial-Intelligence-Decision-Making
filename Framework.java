@@ -68,24 +68,12 @@ public class Framework {
 	
 	public void setPlayerPosition (int rowOld, int colOld, int row, int col) {
 		grid[rowOld][colOld].setIcon(new ImageIcon( GameboardPiece.getEmpty() )); //Remove player old position
-		grid[row][col].setIcon(new ImageIcon( GameboardPiece.getPlayer() ));  //Set player new position
-    }
-	
-	public PlayerPosition getPlayerPosition () { //Get player position
-         PlayerPosition playerPosition = new PlayerPosition();
-         for(int r = 0; r < numRows; r++) 
-         {
-            for(int c = 0; c < numCols; c++) 
-            {
-                if (grid[r][c].getIcon().toString() == GameboardPiece.getPlayer())
-                {
-                    PlayerPosition.setRow(r);
-                    PlayerPosition.setCol(c);
-                    return playerPosition;
-                }
-            }
-         }
-         return playerPosition;
+		if (row >= 0 && col >= 0) //if positive row and col
+		{
+			grid[row][col].setIcon(new ImageIcon( GameboardPiece.getPlayer() ));  //Set player new position
+		}
+        PlayerPosition.setRow(row);
+        PlayerPosition.setCol(col);
     }
 	
 	public String getGridPiece (int row, int col) {
@@ -120,7 +108,14 @@ public class Framework {
 	}
 	
 	public void setTextJLabel_Location () {
-		location.setText("Location: R " + PlayerPosition.getRow() + " C " + PlayerPosition.getCol());
+		if (PlayerPosition.getRow() >= 0 && PlayerPosition.getCol() >= 0)
+		{
+			location.setText("Location: R " + PlayerPosition.getRow() + " C " + PlayerPosition.getCol());
+		}
+		else
+		{
+			location.setText("Location: Portaled");
+		}
 	}
 	
 	public void setTextJLabel_Signal (int i) {
