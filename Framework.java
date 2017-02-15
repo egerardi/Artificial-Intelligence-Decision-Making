@@ -7,8 +7,6 @@ public class Framework extends JFrame {
 	
 	private JLabel [][] grid;
 	private int gridPieceDimension = 25;
-	public static String boardPiecePNG = "src/images/boardpiece.png";
-	public static String wall = "src/images/wall.png";
 	
 	public Framework (int numRows, int numCols) {
 		
@@ -23,11 +21,11 @@ public class Framework extends JFrame {
 				
 				if (row == numRows - 1 || col == numCols - 1 || row == 0 || col == 0 ) //If row or col is the border, set to wall
 				{
-					grid[row][col].setIcon(new ImageIcon(wall));
+					grid[row][col].setIcon(new ImageIcon(GameboardPiece.getWall()));
 				}
 				else
 				{
-					grid[row][col].setIcon(new ImageIcon(boardPiecePNG));
+					grid[row][col].setIcon(new ImageIcon(GameboardPiece.getEmpty()));
 				}
 				
 				grid[row][col].setName( "r" + Integer.toString(row) + "c" + Integer.toString(col) );
@@ -39,6 +37,7 @@ public class Framework extends JFrame {
 		setLayout(null);
 		setVisible(true);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-
 	}
+	
+	
 }
