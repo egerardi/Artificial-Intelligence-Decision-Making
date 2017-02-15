@@ -15,6 +15,11 @@ public class Framework {
 	private int numRows;
 	private int numCols;
 	
+	JLabel moveDirection;
+	JLabel location;
+	JLabel signal;
+	JLabel moveCount;
+	
 	public Framework (int nRows, int nCols) {
 		
 		numRows = nRows;
@@ -23,6 +28,8 @@ public class Framework {
 		initalizeGrid(numRows, numCols);
 		
 		setPortal(numRows - 2, numCols - 1);
+		
+		initalizeJLabels();
 	}
 	
 	private void initalizeGrid (int numRows, int numCols) {
@@ -85,5 +92,50 @@ public class Framework {
 		return grid[row][col].getIcon().toString();
 	}
 	
+	
+	
+	private void initalizeJLabels () {
+		moveDirection = new JLabel("Move Direction: Player Start");
+		moveDirection.setBounds(0, gridPieceDimension*numRows, gridPieceDimension*numCols, gridPieceDimension);
+		MasterGameProcess.frame().add(moveDirection);
+		
+		
+		location = new JLabel("Location: R " + PlayerPosition.getRow() + " C " + PlayerPosition.getCol());
+		location.setBounds(0, (gridPieceDimension*numRows) + gridPieceDimension, gridPieceDimension*numCols, gridPieceDimension);
+		MasterGameProcess.frame().add(location);
+		
+		
+		signal = new JLabel("Signal: 0");
+		signal.setBounds(0, (gridPieceDimension*numRows) + (gridPieceDimension * 2), gridPieceDimension*numCols, gridPieceDimension);
+		MasterGameProcess.frame().add(signal);
+		
+		
+		moveCount = new JLabel("Move Count: 0");
+		moveCount.setBounds(0, (gridPieceDimension*numRows) + (gridPieceDimension * 3), gridPieceDimension*numCols, gridPieceDimension);
+		MasterGameProcess.frame().add(moveCount);
+	}
+	
+	public void setTextJLabel_MoveDirection (String s) {
+		moveDirection.setText("Move Direction: " + s);
+	}
+	
+	public void setTextJLabel_Location () {
+		location.setText("Location: R " + PlayerPosition.getRow() + " C " + PlayerPosition.getCol());
+	}
+	
+	public void setTextJLabel_Signal (int i) {
+		String text = null;
+		switch (i) {
+			case -1 : text = "SIG REC: wall collision";
+			case 1: text = "SIG REC: wall collision";
+			case 2: text = "SIG REC: PORTALATED!!";
+		}
+		
+		signal.setText("Signal: " + text);
+	}
+	
+	public void setTextJLabel_MoveCount (String s) {
+		moveCount.setText("Move Count: " + s);
+	}
 	
 }
