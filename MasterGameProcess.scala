@@ -22,7 +22,6 @@ object MasterGameProcess {
        Thread.sleep(3000);
        
        while (! foundPortal) {
-//           println();  
          
            decision = DecisionFactory.Decision();  // Get Decision
            //Store change in row or col (using changeRow and changeCol)
@@ -57,8 +56,6 @@ object MasterGameProcess {
                strDirection = "Move Right";
            }
            
-           //playerPosition = framework.getPlayerPosition();
-           
            
            if (framework.getGridPiece(PlayerPosition.getRow() + changeRow, PlayerPosition.getCol() + changeCol) == GameboardPiece.getWall())  //If Hit Wall
            {
@@ -91,10 +88,5 @@ object MasterGameProcess {
            
            Thread.sleep(3000);
        }
-       
-       println();
-       println();
-       
-       println("Player Found the Portal in " + numberOfMoves + " moves.");
    }
 }
