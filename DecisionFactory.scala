@@ -17,6 +17,9 @@ object DecisionFactory {
   // Mutable object attributes:
   var lastSignal = -999 // note: last signal of -999 means the event has just started
   var lastMove = 0      // of possibility utility
+  var lastLastMove = 0;
+  var didFirstDown = false;
+  var hitFirstDown = false;
 
   // Log level (to console)
   var logLevel = 1
@@ -29,7 +32,7 @@ object DecisionFactory {
   //   3 - move left
   //   4 - move right
   def Decision() : Int = {
-    _randomWalkDecision()
+    zigzagWalk()
     //_sweepRoomModelDecision()
   }
 
@@ -50,17 +53,59 @@ object DecisionFactory {
     lastSignal = sig 
   }  
 
-  // Internal decision function, random walk (including stays):
-  private def _randomWalkDecision() : Int = {
-    // Creates new move and stores it in lastMove attribute:
-    lastMove = Random.nextInt(5)
+  // Internal decision function, spiral walk
+  private def zigzagWalk() : Int = {
+
+    var temp = lastMove;
+    
+    if (lastSignal == -999) //Beginning move
+    {
+        lastMove = 3; //Left
+    }
+    else
+    {
+        if (lastSignal == -1) //If last movement decision failed
+        {
+            if (didFirstDown == false)
+            {
+                lastMove = 2; //Down
+                didFirstDown = true;
+            }
+            else if (didFirstDown == true && hitFirstDown == false)
+            {
+                lastMove = 1;  //Up
+                hitFirstDown = true;
+            }
+            else if (lastMove == 1 || lastMove == 2) //If lastMove was Up or Down
+            {
+                lastMove = 4; //Right
+            }
+            else 
+            {
+              
+            }
+            
+            
+        }
+        else 
+        {
+            if (lastMove == 4)
+            {
+                if (lastLastMove == 1) //If lastMove right && lastLastMove up
+                {
+                    lastMove = 2; //Down
+                }
+                else //(lastLastMove == 2) //If lastMove right && lastLastMove down
+                {
+                    lastMove = 1;  //Up
+                }
+            }  
+        }
+    }
+    lastLastMove = temp;
 
     // Returns newly created move:
     lastMove
   }
   
-//  def main(args: Array[String]) {
-//      println("Decision: " + Decision() );
-//  }
-
 }
