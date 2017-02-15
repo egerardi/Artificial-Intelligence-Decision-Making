@@ -12,8 +12,13 @@ public class Framework {
 	
 	private static JLabel [][] grid;
 	private int gridPieceDimension = 25;
+	private int numRows;
+	private int numCols;
 	
-	public Framework (int numRows, int numCols) {
+	public Framework (int nRows, int nCols) {
+		
+		numRows = nRows;
+		numCols = nCols;
 		
 		initalizeGrid(numRows, numCols);
 		
@@ -58,6 +63,27 @@ public class Framework {
 		grid[rowOld][colOld].setIcon(new ImageIcon( GameboardPiece.getEmpty() )); //Remove player old position
 		grid[row][col].setIcon(new ImageIcon( GameboardPiece.getPlayer() ));  //Set player new position
     }
+	
+	public PlayerPosition getPlayerPosition () { //Get player position
+         PlayerPosition playerPosition = new PlayerPosition();
+         for(int r = 0; r < numRows; r++) 
+         {
+            for(int c = 0; c < numCols; c++) 
+            {
+                if (grid[r][c].getIcon().toString() == GameboardPiece.getPlayer())
+                {
+                    PlayerPosition.setRow(r);
+                    PlayerPosition.setCol(c);
+                    return playerPosition;
+                }
+            }
+         }
+         return playerPosition;
+    }
+	
+	public String getGridPiece (int row, int col) {
+		return grid[row][col].getIcon().toString();
+	}
 	
 	
 }
