@@ -1,25 +1,21 @@
 import java.lang;
+import javax.swing.JFrame
 
 object MasterGameProcess {
    var decision : Int = _;
    var changeRow : Int = _;
    var changeCol : Int = _;
    
+   var frame = new JFrame();
+   
    def main(args: Array[String]) {
        var foundPortal: Boolean = false;
        var numberOfMoves: Int = 0;
-//       var playerPosition = new PlayerPosition();
-       
-//       var framework = new Framework(20,40);
-//       
-//       framework.setPlayerPosition(0, 0, 18, 2);
-//       
-//       println("Player Start");
-//       framework.printGrid();
-       //Thread.sleep(500);
        
        var framework = new Framework(20,40);
+       framework.setPlayerPosition(18, 1, 18, 1)
        
+       Thread.sleep(100);
        
 //       while (! foundPortal) {
 //           println();  
