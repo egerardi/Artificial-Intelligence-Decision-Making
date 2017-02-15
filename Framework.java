@@ -121,9 +121,14 @@ public class Framework {
 	public void setTextJLabel_Signal (int i) {
 		String text = null;
 		switch (i) {
-			case -1 : text = "SIG REC: wall collision";
-			case 1: text = "SIG REC: wall collision";
-			case 2: text = "SIG REC: PORTALATED!!";
+			case -1 : text = "Wall Collision";
+				break;
+			case 1: text = "Successful Move";
+				break;
+			case 2: text = "PORTALATED!!";
+				break;
+			default: text = "No Signal";
+				break;
 		}
 		
 		signal.setText("Signal: " + text);
