@@ -41,9 +41,8 @@ object DecisionFactory {
   //   3 - move left
   //   4 - move right
   def Decision() : Int = {
-//    noBackToBackRepeat();
+
     zigzagWalk();
-    //_sweepRoomModelDecision()
   }
 
   // Signal channel for receiving results about decisions and the environment:
@@ -64,23 +63,6 @@ object DecisionFactory {
     lastSignal = sig 
   }  
 
-  private def noBackToBackRepeat() : Int = {
-    
-      var temp = lastMove;
-      lastMove = Random.nextInt(5);
-      
-      while (lastMove == lastLastMove)
-      {
-          lastMove = Random.nextInt(5);
-          if (lastMove != lastLastMove)
-          {
-              lastLastMove = temp;
-              return lastMove;
-          }
-      }
-      lastLastMove = temp;
-      return lastMove;
-  }
   
   // Internal decision function, spiral walk
   private def zigzagWalk() : Int = {
@@ -110,7 +92,12 @@ object DecisionFactory {
         else
         {
           
-        }   
+        }
+        
+        if (directionCounter == 2)
+        {
+            lastMove = 4;
+        }
     }
     else
     {
@@ -158,12 +145,8 @@ object DecisionFactory {
         }
     }
     
-    println("directionCounter " + directionCounter);
-    println("lastMove " + lastMove);
-    println("lastLastMove " + lastLastMove);
-    
     lastLastMove = temp;
-
+    
     // Returns newly created move:
     lastMove
   }  
