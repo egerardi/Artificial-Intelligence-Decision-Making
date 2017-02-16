@@ -27,7 +27,7 @@ public class Framework {
 		
 		initalizeGrid(numRows, numCols);
 		
-		setPortal(numRows - 2, numCols - 1);
+		setPortal(numRows - 3, numCols - 1);
 		
 		initalizeJLabels();
 	}
