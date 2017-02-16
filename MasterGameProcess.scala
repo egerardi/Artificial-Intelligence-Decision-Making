@@ -15,11 +15,10 @@ object MasterGameProcess {
        var foundPortal: Boolean = false;
        var numberOfMoves: Int = 0;
        
-       var framework = new Framework(20,40);
-       framework.setPlayerPosition(18, 1, 18, 1);
+       var framework = new Framework(25,60);
+       framework.setPlayerPosition(5, 5, 5, 5);
        framework.setTextJLabel_Location(); 
        
-       Thread.sleep(3000);
        
        while (! foundPortal) {
          
@@ -86,7 +85,7 @@ object MasterGameProcess {
            framework.setTextJLabel_MoveCount(numberOfMoves.toString());
            
            
-           Thread.sleep(3000);
+//           Thread.sleep(30);
        }
    }
 }
