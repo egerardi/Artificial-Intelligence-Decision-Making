@@ -1,4 +1,8 @@
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
 import javax.swing.ImageIcon;
+import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 
@@ -19,6 +23,9 @@ public class Framework {
 	JLabel location;
 	JLabel signal;
 	JLabel moveCount;
+	JButton playButton;
+	JButton pauseButton;
+	JButton stopButton;
 	
 	public Framework (int nRows, int nCols) {
 		
@@ -30,6 +37,8 @@ public class Framework {
 		setPortal(numRows - 3, numCols - 1);
 		
 		initalizeJLabels();
+		
+		initalizeButtons();
 	}
 	
 	private void initalizeGrid (int numRows, int numCols) {
@@ -56,7 +65,7 @@ public class Framework {
 			}
 		}
 		
-		MasterGameProcess.frame().setSize((numCols + 1) * gridPieceDimension - 8, (numRows + 7) * gridPieceDimension);
+		MasterGameProcess.frame().setSize((numCols + 1) * gridPieceDimension - 8, (numRows + 8) * gridPieceDimension);
 		MasterGameProcess.frame().setLayout(null);
 		MasterGameProcess.frame().setVisible(true);
 		MasterGameProcess.frame().setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -137,5 +146,19 @@ public class Framework {
 	public void setTextJLabel_MoveCount (String s) {
 		moveCount.setText("Move Count: " + s);
 	}
+	
+	private void initalizeButtons () {
+		ImageIcon playIcon = new ImageIcon("src/images/playButton.png");
+		playButton = new JButton(playIcon);
+		playButton.setBounds(0, (gridPieceDimension*numRows) + (gridPieceDimension * 4), 150, 50);
+		playButton.addActionListener(new ActionListener() {
+	         public void actionPerformed(ActionEvent e) {
+	        	 MasterGameProcess.pushPlay();
+	        	 moveCount.setText("Move Count: HELLO FROM PLAY BUTTON");
+	         }          
+	    });
+		MasterGameProcess.frame().add(playButton);
+	}
+	
 	
 }
