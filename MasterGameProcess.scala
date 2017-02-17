@@ -9,6 +9,7 @@ object MasterGameProcess {
    var strDirection : String = _;
    var signal : Int = _;
    var isPlay = false;
+   var isPause = false;
    
    var frame = new JFrame();
    
@@ -90,6 +91,11 @@ object MasterGameProcess {
            framework.setTextJLabel_Signal(signal);
            framework.setTextJLabel_MoveCount(numberOfMoves.toString());
            
+           while (isPause)
+           {
+             Thread.sleep(30);
+           }
+           
            
            Thread.sleep(30);
        }
@@ -97,6 +103,10 @@ object MasterGameProcess {
    
    def pushPlay () {
        isPlay = true;
+   }
+   
+   def pushPause () {
+       isPause = !isPause;
    }
    
 }
