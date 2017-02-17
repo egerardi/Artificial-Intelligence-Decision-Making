@@ -8,6 +8,7 @@ object MasterGameProcess {
    //var playerPosition : PlayerPosition = _;
    var strDirection : String = _;
    var signal : Int = _;
+   var isPlay = false;
    
    var frame = new JFrame();
    
@@ -18,6 +19,11 @@ object MasterGameProcess {
        var framework = new Framework(25,60);
        framework.setPlayerPosition(5, 5, 5, 5);
        framework.setTextJLabel_Location(); 
+       
+       while (! isPlay)
+       {
+         Thread.sleep(30);
+       }
        
        
        while (! foundPortal) {
@@ -85,7 +91,12 @@ object MasterGameProcess {
            framework.setTextJLabel_MoveCount(numberOfMoves.toString());
            
            
-//           Thread.sleep(30);
+           Thread.sleep(30);
        }
    }
+   
+   def pushPlay () {
+       isPlay = true;
+   }
+   
 }
