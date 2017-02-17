@@ -36,7 +36,7 @@ public class Framework {
 		
 		setPortal(numRows - 3, numCols - 1);
 		
-		initalizeJLabels();
+		initalizeStatisticsTextLabels();
 		
 		initalizePlayButton();
 		
@@ -93,7 +93,7 @@ public class Framework {
 	
 	
 	
-	private void initalizeJLabels () {
+	private void initalizeStatisticsTextLabels () {
 		moveDirection = new JLabel("Move Direction: Player Start");
 		moveDirection.setBounds(0, gridPieceDimension*numRows, gridPieceDimension*numCols, gridPieceDimension);
 		MasterGameProcess.frame().add(moveDirection);
