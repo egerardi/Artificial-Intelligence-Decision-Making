@@ -1,5 +1,8 @@
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -63,6 +66,14 @@ public class Framework {
 				}
 				
 				grid[row][col].setName( "r" + Integer.toString(row) + "c" + Integer.toString(col) );
+				
+				grid[row][col].addMouseListener(new MouseAdapter() {
+	                @Override
+	                public void mouseClicked(MouseEvent e) {
+	                	switchBetweenWallandEmpty(e);
+	                }
+	            });
+						
 				MasterGameProcess.frame().add(grid[row][col]);
 			}
 		}
@@ -170,6 +181,21 @@ public class Framework {
 	         }          
 	    });
 		MasterGameProcess.frame().add(pauseButton);
+	}
+	
+	private void switchBetweenWallandEmpty (MouseEvent e) {
+		
+		if (((JLabel)e.getSource()).getIcon().toString() == GameboardPiece.getWall())
+    	{
+			((JLabel)e.getSource()).setIcon(new ImageIcon( GameboardPiece.getEmpty() ));
+    	}
+    	else if (((JLabel)e.getSource()).getIcon().toString() == GameboardPiece.getEmpty() )
+    	{
+    		((JLabel)e.getSource()).setIcon(new ImageIcon( GameboardPiece.getWall() ));
+    	}
+    	else {
+    		
+    	}
 	}
 	
 }
