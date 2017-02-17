@@ -38,7 +38,9 @@ public class Framework {
 		
 		initalizeJLabels();
 		
-		initalizeButtons();
+		initalizePlayButton();
+		
+		initalizePauseButton();
 	}
 	
 	private void initalizeGrid (int numRows, int numCols) {
@@ -147,18 +149,27 @@ public class Framework {
 		moveCount.setText("Move Count: " + s);
 	}
 	
-	private void initalizeButtons () {
+	private void initalizePlayButton () {
 		ImageIcon playIcon = new ImageIcon("src/images/playButton.png");
 		playButton = new JButton(playIcon);
 		playButton.setBounds(0, (gridPieceDimension*numRows) + (gridPieceDimension * 4), 150, 50);
 		playButton.addActionListener(new ActionListener() {
 	         public void actionPerformed(ActionEvent e) {
 	        	 MasterGameProcess.pushPlay();
-	        	 moveCount.setText("Move Count: HELLO FROM PLAY BUTTON");
 	         }          
 	    });
 		MasterGameProcess.frame().add(playButton);
 	}
-	
+	private void initalizePauseButton () {
+		ImageIcon pauseIcon = new ImageIcon("src/images/pauseButton.png");
+		pauseButton = new JButton(pauseIcon);
+		pauseButton.setBounds(160, (gridPieceDimension*numRows) + (gridPieceDimension * 4), 150, 50);
+		pauseButton.addActionListener(new ActionListener() {
+	         public void actionPerformed(ActionEvent e) {
+	        	 MasterGameProcess.pushPause();
+	         }          
+	    });
+		MasterGameProcess.frame().add(pauseButton);
+	}
 	
 }
