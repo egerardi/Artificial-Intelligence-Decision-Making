@@ -1,8 +1,8 @@
 
 
-object Vertex {
-    private var x : Int = _;
-    private var y : Int = _;
+class Vertex ( xAxis : Int, yAxis : Int) {
+    private var x : Int = xAxis;
+    private var y : Int = yAxis;
     
     def getX () : Int = {
       return x;
