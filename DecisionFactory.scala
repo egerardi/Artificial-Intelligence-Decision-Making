@@ -25,6 +25,10 @@ object DecisionFactory {
     var alongWall = 0; //Same integers as lastMove, but 0 == Not along wall
     var directionCounter : Int = 0;
     var upDownLeftRight = ofDim[Int](4,5);
+    var currentX : Int = 0;
+    var currentY : Int = 0;
+    var tempX : Int = _;
+    var tempY : Int = _;
     
     
     //Array Buffer for queue of Vertices
@@ -63,64 +67,95 @@ object DecisionFactory {
       // Record latest signal in attribute:
       lasLastSignal = lastSignal;
       lastSignal = sig 
+      println("Signal: " + lastSignal);
+      println();
     }  
   
     
     // Internal decision function, Wall Run
     private def WallRun() : Int = {
-//        println(queue.last.getX() + " " + queue.last.getY());
         
-        println(lastSignal);
-        if (lastSignal == -1)
-        {
-            queue.remove(queue.length - 1);
-        }
-      
         lastLastMove = lastMove;
       
-        //Get Character Current X, Y
-        var currentX : Int = queue.last.getX();
-        var currentY : Int = queue.last.getY();
+        var failedX : Int = -999;
+        var failedY : Int = -999;
+        var numAddedVertices : Int = 0;
+      
+        if (lastSignal == -1 || (lastMove == 0 && !queue.isEmpty))  //If last move failed (Wall)   or    if lastMove was stay AND queue != empty
+        {
+            failedX = queue.last.getX();
+            failedY = queue.last.getY();
+            println("Failed: " + queue.last.getX() + " " + queue.last.getY());
+            queue.remove(queue.length - 1);
+        }
+        else if (lastSignal == -999) { }
+        else //Last move was a success
+        {
+            //Get Character Current X, Y
+            currentX = tempX;
+            currentY = tempY;
+        }
+//        println("Current: " + queue.last.getX() + " " + queue.last.getY());
         
-        //Add all surrounding Vertices (of the current one)
-        if ( !( queue.exists { x => x.getX() == currentX } && queue.exists { y => y.getY() == currentY + 1 } ) ) //If grid Vertex 1 Up does not exist
+        
+        if (lastSignal != -1)
         {
-            var v : Vertex = new Vertex(currentX, currentY + 1); //Create Vertex
-            queue.append(v); //Append Vertex
-        }
-        if ( !( queue.exists { x => x.getX() == currentX + 1 } && queue.exists { y => y.getY() == currentY } ) ) //If grid Vertex 1 Right does not exist
-        {
-            var v : Vertex = new Vertex(currentX + 1, currentY); //Create Vertex
-            queue.append(v); //Append Vertex
-        }
-        if ( !( queue.exists { x => x.getX() == currentX } && queue.exists { y => y.getY() == currentY - 1 } ) ) //If grid Vertex 1 Down does not exist
-        {
-            var v : Vertex = new Vertex(currentX, currentY - 1); //Create Vertex
-            queue.append(v); //Append Vertex
-        }
-        if ( !( queue.exists { x => x.getX() == currentX - 1} && queue.exists { y => y.getY() == currentY } ) ) //If grid Vertex 1 Left does not exist
-        {
-            var v : Vertex = new Vertex(currentX - 1, currentY); //Create Vertex
-            queue.append(v); //Append Vertex
+            //Add all surrounding Vertices (of the current one)
+            if ( !( queue.exists { a => a.getX() == currentX && a.getY() == currentY + 1 } ) ) //If grid Vertex 1 Up is not in the queue
+            {
+                var v : Vertex = new Vertex(currentX, currentY + 1); //Create Vertex
+                queue.append(v); //Append Vertex
+                numAddedVertices = numAddedVertices + 1;
+            }
+            if ( !( queue.exists { a => a.getX() == currentX + 1 && a.getY() == currentY } ) ) //If grid Vertex 1 Right is not in the queue
+            {
+                var v : Vertex = new Vertex(currentX + 1, currentY); //Create Vertex
+                queue.append(v); //Append Vertex
+                numAddedVertices = numAddedVertices + 1;
+            }
+            if ( !( queue.exists { a => a.getX() == currentX && a.getY() == currentY - 1 } ) ) //If grid Vertex 1 Down is not in the queue
+            {
+                var v : Vertex = new Vertex(currentX, currentY - 1); //Create Vertex
+                queue.append(v); //Append Vertex
+                numAddedVertices = numAddedVertices + 1;
+            }
+            if ( !( queue.exists { a => a.getX() == currentX - 1 && a.getY() == currentY } ) ) //If grid Vertex 1 Left is not in the queue
+            {
+                var v : Vertex = new Vertex(currentX - 1, currentY); //Create Vertex
+                queue.append(v); //Append Vertex
+                numAddedVertices = numAddedVertices + 1;
+            }
         }
         
         //Move Character according to last Vertex
         if (queue.last.getX() == currentX && queue.last.getY() == currentY + 1)
         {
             lastMove = 1; //Move Up
+            tempX = currentX;
+            tempY = currentY + 1;
         }
         else if (queue.last.getX() == currentX && queue.last.getY() == currentY - 1)
         {
             lastMove = 2; //Move Down
+            tempX = currentX;
+            tempY = currentY - 1;
         }
         else if (queue.last.getX() == currentX - 1 && queue.last.getY() == currentY)
         {
             lastMove = 3; //Move Left
+            tempX = currentX - 1;
+            tempY = currentY;
         }
-        else //if (queue.last.getX() == currentX + 1 && queue.last.getY() == currentY)
+        else if (queue.last.getX() == currentX + 1 && queue.last.getY() == currentY)
         {
             lastMove = 4; //Move Right
+            tempX = currentX + 1;
+            tempY = currentY;
         }
+        else {
+            lastMove = 0; //Stay
+        }
+        
         
         for ( i <- queue)
         {
@@ -133,7 +168,27 @@ object DecisionFactory {
       
         // Returns newly created move:
         lastMove
-    }  
+    }
+    
+    class Vertex ( xAxis : Int, yAxis : Int) {
+        private var x : Int = xAxis;
+        private var y : Int = yAxis;
+        
+        def getX () : Int = {
+          return x;
+        }
+        def setX (newX : Int) {
+          x = newX;
+        }
+        
+        def getY () : Int = {
+          return y;
+        }
+        def setY (newY : Int) {
+          y = newY;
+        }
+        
+    }
 }
 
 
