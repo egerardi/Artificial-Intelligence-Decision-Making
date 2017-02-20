@@ -27,15 +27,16 @@ object DecisionFactory {
     var upDownLeftRight = ofDim[Int](4,5);
     var currentX : Int = 0;
     var currentY : Int = 0;
-    var tempX : Int = _;
-    var tempY : Int = _;
+    var tempX : Int = 0;
+    var tempY : Int = 0;
     var threeToPop : Int = 0;
+    var isBackToParent : Boolean = false;
     
     
     //Array Buffer for queue of Vertices
     var queue = ArrayBuffer[Vertex]();
     //Add first vertex (Player start is considered 0,0)
-    var v : Vertex = new Vertex(0,0);
+    var v : Vertex = new Vertex(0,0,0,0);
     queue.append(v);
     
     //Array Buffer for queue of Vertices
@@ -55,7 +56,7 @@ object DecisionFactory {
     //   3 - move left
     //   4 - move right
     def Decision() : Int = {
-      WallRun();
+      blindGraph_DepthFirstSearch();
     }
   
     // Signal channel for receiving results about decisions and the environment:
@@ -79,79 +80,72 @@ object DecisionFactory {
     }  
   
     
-    // Internal decision function, Wall Run
-    private def WallRun() : Int = {
-        
-        lastLastMove = lastMove;
+    // Internal decision function
+    def blindGraph_DepthFirstSearch () : Int = {    
+        currentX = tempX;
+        currentY = tempY;
       
-        var failedX : Int = -999;
-        var failedY : Int = -999;
-        var numAddedVertices : Int = 0;
+        println("Current: " + queue.last.getX() + " " + queue.last.getY());
       
-        if ((lastSignal == -1 || (lastMove == 0 && !queue.isEmpty)) && queue.length > 1 )  //If last move failed (Wall)   or    if lastMove was stay AND queue != empty     and queue > 1
+        if (lastMove == -999) //Last Move: None (Start)
         {
-            failedX = queue.last.getX();
-            failedY = queue.last.getY();
-            println("Failed: " + queue.last.getX() + " " + queue.last.getY());
-            queue.remove(queue.length - 1);
+            addSurroundingVertices();
             
-            threeToPop = threeToPop + 1;
+            moveToLastInQueue();
         }
-        else if (lastSignal == -999) { }
-        else //Last move was a success
+        else if (lastMove == -1) //Last Move: Fail
         {
-            //Get Character Current X, Y
-            currentX = tempX;
-            currentY = tempY;
-            if (threeToPop == 3)
+            pop();
+            
+            if (currentX == queue.last.getX() && currentY == queue.last.getY()) //If Current Position == Last in queue
             {
-                threeToPop = 1;
+                pop();
+                moveToParent();
             }
             else 
             {
-                threeToPop = 0;
+                moveToLastInQueue();
             }
         }
-//        println("Current: " + queue.last.getX() + " " + queue.last.getY());
-        
-             
-        
-        if (lastSignal != -1 && threeToPop != 3)
-        {
-            //Add all surrounding Vertices (of the current one)
-            if ( !( queue.exists { a => a.getX() == currentX && a.getY() == currentY + 1 } ) && !( visited.exists { b => b.getX() == currentX && b.getY() == currentY + 1 } ) ) //If grid Vertex Up 1 square is not in the queue
+        else //Last Move: Success
+        {          
+            if (isBackToParent)
             {
-                var v : Vertex = new Vertex(currentX, currentY + 1); //Create Vertex
-                queue.append(v); //Append Vertex
-                numAddedVertices = numAddedVertices + 1;
-                
-                visited.append(v);
+                if ( currentX != queue.last.getX() || currentY != queue.last.getY() ) //If Current Position != Last in queue
+                {
+                    moveToLastInQueue();
+                }
+                else 
+                {
+                    pop();
+                    moveToParent();
+                }
             }
-            if ( !( queue.exists { a => a.getX() == currentX + 1 && a.getY() == currentY } ) && !( visited.exists { b => b.getX() == currentX + 1 && b.getY() == currentY } ) ) //If grid Vertex Right 1 square is not in the queue
-            {
-                var v : Vertex = new Vertex(currentX + 1, currentY); //Create Vertex
-                queue.append(v); //Append Vertex
-                numAddedVertices = numAddedVertices + 1;
+            else 
+            {         
+                val numAddedVertices : Int = addSurroundingVertices();
                 
-                visited.append(v);
+                if (numAddedVertices == 0) //If there are no vertices to add
+                {
+                    pop();
+                    moveToParent();
+                }
+                else 
+                {
+                    moveToLastInQueue();
+                }
             }
-            if ( !( queue.exists { a => a.getX() == currentX && a.getY() == currentY - 1 } ) && !( visited.exists { b => b.getX() == currentX && b.getY() == currentY - 1 } ) ) //If grid Vertex Down 1 square is not in the queue
-            {
-                var v : Vertex = new Vertex(currentX, currentY - 1); //Create Vertex
-                queue.append(v); //Append Vertex
-                numAddedVertices = numAddedVertices + 1;
-                
-                visited.append(v);
-            }
-            if ( !( queue.exists { a => a.getX() == currentX - 1 && a.getY() == currentY } ) && !( visited.exists { b => b.getX() == currentX - 1 && b.getY() == currentY } ) ) //If grid Vertex Left 1 square is not in the queue
-            {
-                var v : Vertex = new Vertex(currentX - 1, currentY); //Create Vertex
-                queue.append(v); //Append Vertex
-                numAddedVertices = numAddedVertices + 1;
-                
-                visited.append(v);
-            }
+            
+            
         }
+        // Returns newly created move:
+        lastMove
+    }
+    
+
+    
+    def moveToLastInQueue () = {
+        isBackToParent = false;
         
         //Move Character according to last Vertex
         if (queue.last.getX() == currentX && queue.last.getY() == currentY + 1)
@@ -181,29 +175,111 @@ object DecisionFactory {
         else {
             lastMove = 0;
         }
-        
-        if (threeToPop == 3)
-        {
-          threeToPop = 0;
-        }
-        
+    }
+    
+    
+    //Removes last element from queue
+    def pop () = {
+        queue.remove(queue.length - 1);
         
         for ( i <- queue)
         {
             println(i.getX() + " " + i.getY());
         }
-        println();
-//        println(queue.last.getX() + " " + queue.last.getY());
-        
-      
-      
-        // Returns newly created move:
-        lastMove
     }
     
-    class Vertex ( xAxis : Int, yAxis : Int) {
+    def moveToParent () = {
+        isBackToParent = true;
+        
+        //Move Character according to last Vertex
+        if (queue.last.getParentX() == currentX && queue.last.getParentY() == currentY + 1)
+        {
+            lastMove = 1; //Move Up
+            tempX = currentX;
+            tempY = currentY + 1;
+        }
+        else if (queue.last.getParentX() == currentX && queue.last.getParentY() == currentY - 1)
+        {
+            lastMove = 2; //Move Down
+            tempX = currentX;
+            tempY = currentY - 1;
+        }
+        else if (queue.last.getParentX() == currentX - 1 && queue.last.getParentY() == currentY)
+        {
+            lastMove = 3; //Move Left
+            tempX = currentX - 1;
+            tempY = currentY;
+        }
+        else if (queue.last.getParentX() == currentX + 1 && queue.last.getParentY() == currentY)
+        {
+            lastMove = 4; //Move Right
+            tempX = currentX + 1;
+            tempY = currentY;
+        }
+        else {
+            lastMove = 0;
+        }       
+     
+    }
+    
+    
+    //Attempts to add (to the queue) each of the Vertices surrounding the current Vertex
+    //Returns number of added Vertices
+    def addSurroundingVertices () : Int = {
+        var numAddedVertices : Int = 0;
+      
+        //Add all surrounding Vertices (of the current one)
+        if ( !( queue.exists { a => a.getX() == currentX && a.getY() == currentY + 1 } ) ) //If grid Vertex Up 1 square is not in the queue
+        {
+            var v : Vertex = new Vertex(currentX, currentY + 1, currentX, currentY); //Create Vertex
+            queue.append(v); //Append Vertex
+            numAddedVertices = numAddedVertices + 1;
+            
+            visited.append(v);
+        }
+        if ( !( queue.exists { a => a.getX() == currentX + 1 && a.getY() == currentY } ) ) //If grid Vertex Right 1 square is not in the queue
+        {
+            var v : Vertex = new Vertex(currentX + 1, currentY, currentX, currentY); //Create Vertex
+            queue.append(v); //Append Vertex
+            numAddedVertices = numAddedVertices + 1;
+            
+            visited.append(v);
+        }
+        if ( !( queue.exists { a => a.getX() == currentX && a.getY() == currentY - 1 } ) ) //If grid Vertex Down 1 square is not in the queue
+        {
+            var v : Vertex = new Vertex(currentX, currentY - 1, currentX, currentY); //Create Vertex
+            queue.append(v); //Append Vertex
+            numAddedVertices = numAddedVertices + 1;
+            
+            visited.append(v);
+        }
+        if ( !( queue.exists { a => a.getX() == currentX - 1 && a.getY() == currentY } ) ) //If grid Vertex Left 1 square is not in the queue
+        {
+            var v : Vertex = new Vertex(currentX - 1, currentY, currentX, currentY); //Create Vertex
+            queue.append(v); //Append Vertex
+            numAddedVertices = numAddedVertices + 1;
+            
+            visited.append(v);
+        }
+        
+        for ( i <- queue)
+        {
+            println(i.getX() + " " + i.getY());
+        }
+        
+        return numAddedVertices;
+    }
+    
+    
+    //Vertex or graph point
+    //Stores x and y axis
+    //And Parent x and y axis
+    class Vertex ( xAxis : Int, yAxis : Int, xParent : Int, yParent : Int) {
         private var x : Int = xAxis;
         private var y : Int = yAxis;
+        private var parentX : Int = xAxis;
+        private var parentY : Int = yAxis;
+        
         
         def getX () : Int = {
           return x;
@@ -219,6 +295,13 @@ object DecisionFactory {
           y = newY;
         }
         
+        
+        def getParentX () : Int = {
+          return parentX;
+        }
+        def getParentY () : Int = {
+          return parentY;
+        }
     }
 }
 
