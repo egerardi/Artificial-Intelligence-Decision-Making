@@ -29,6 +29,7 @@ object DecisionFactory {
     var currentY : Int = 0;
     var tempX : Int = _;
     var tempY : Int = _;
+    var threeToPop : Int = 0;
     
     
     //Array Buffer for queue of Vertices
@@ -36,6 +37,12 @@ object DecisionFactory {
     //Add first vertex (Player start is considered 0,0)
     var v : Vertex = new Vertex(0,0);
     queue.append(v);
+    
+    //Array Buffer for queue of Vertices
+    var visited = ArrayBuffer[Vertex]();
+    //Add first vertex (Player start is considered 0,0)
+    visited.append(v);
+        
     
     // Log level (to console)
     var logLevel = 1
@@ -81,12 +88,14 @@ object DecisionFactory {
         var failedY : Int = -999;
         var numAddedVertices : Int = 0;
       
-        if (lastSignal == -1 || (lastMove == 0 && !queue.isEmpty))  //If last move failed (Wall)   or    if lastMove was stay AND queue != empty
+        if ((lastSignal == -1 || (lastMove == 0 && !queue.isEmpty)) && queue.length > 1 )  //If last move failed (Wall)   or    if lastMove was stay AND queue != empty     and queue > 1
         {
             failedX = queue.last.getX();
             failedY = queue.last.getY();
             println("Failed: " + queue.last.getX() + " " + queue.last.getY());
             queue.remove(queue.length - 1);
+            
+            threeToPop = threeToPop + 1;
         }
         else if (lastSignal == -999) { }
         else //Last move was a success
@@ -94,36 +103,53 @@ object DecisionFactory {
             //Get Character Current X, Y
             currentX = tempX;
             currentY = tempY;
+            if (threeToPop == 3)
+            {
+                threeToPop = 1;
+            }
+            else 
+            {
+                threeToPop = 0;
+            }
         }
 //        println("Current: " + queue.last.getX() + " " + queue.last.getY());
         
+             
         
-        if (lastSignal != -1)
+        if (lastSignal != -1 && threeToPop != 3)
         {
             //Add all surrounding Vertices (of the current one)
-            if ( !( queue.exists { a => a.getX() == currentX && a.getY() == currentY + 1 } ) ) //If grid Vertex 1 Up is not in the queue
+            if ( !( queue.exists { a => a.getX() == currentX && a.getY() == currentY + 1 } ) && !( visited.exists { b => b.getX() == currentX && b.getY() == currentY + 1 } ) ) //If grid Vertex Up 1 square is not in the queue
             {
                 var v : Vertex = new Vertex(currentX, currentY + 1); //Create Vertex
                 queue.append(v); //Append Vertex
                 numAddedVertices = numAddedVertices + 1;
+                
+                visited.append(v);
             }
-            if ( !( queue.exists { a => a.getX() == currentX + 1 && a.getY() == currentY } ) ) //If grid Vertex 1 Right is not in the queue
+            if ( !( queue.exists { a => a.getX() == currentX + 1 && a.getY() == currentY } ) && !( visited.exists { b => b.getX() == currentX + 1 && b.getY() == currentY } ) ) //If grid Vertex Right 1 square is not in the queue
             {
                 var v : Vertex = new Vertex(currentX + 1, currentY); //Create Vertex
                 queue.append(v); //Append Vertex
                 numAddedVertices = numAddedVertices + 1;
+                
+                visited.append(v);
             }
-            if ( !( queue.exists { a => a.getX() == currentX && a.getY() == currentY - 1 } ) ) //If grid Vertex 1 Down is not in the queue
+            if ( !( queue.exists { a => a.getX() == currentX && a.getY() == currentY - 1 } ) && !( visited.exists { b => b.getX() == currentX && b.getY() == currentY - 1 } ) ) //If grid Vertex Down 1 square is not in the queue
             {
                 var v : Vertex = new Vertex(currentX, currentY - 1); //Create Vertex
                 queue.append(v); //Append Vertex
                 numAddedVertices = numAddedVertices + 1;
+                
+                visited.append(v);
             }
-            if ( !( queue.exists { a => a.getX() == currentX - 1 && a.getY() == currentY } ) ) //If grid Vertex 1 Left is not in the queue
+            if ( !( queue.exists { a => a.getX() == currentX - 1 && a.getY() == currentY } ) && !( visited.exists { b => b.getX() == currentX - 1 && b.getY() == currentY } ) ) //If grid Vertex Left 1 square is not in the queue
             {
                 var v : Vertex = new Vertex(currentX - 1, currentY); //Create Vertex
                 queue.append(v); //Append Vertex
                 numAddedVertices = numAddedVertices + 1;
+                
+                visited.append(v);
             }
         }
         
@@ -153,7 +179,12 @@ object DecisionFactory {
             tempY = currentY;
         }
         else {
-            lastMove = 0; //Stay
+            lastMove = 0;
+        }
+        
+        if (threeToPop == 3)
+        {
+          threeToPop = 0;
         }
         
         
