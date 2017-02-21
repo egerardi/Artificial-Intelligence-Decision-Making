@@ -184,11 +184,11 @@ object DecisionFactory {
     def pop () = {
         queue.remove(queue.length - 1);
         
-        for ( i <- queue)
-        {
-            println(i.getX() + " " + i.getY() + " Parent " + i.getParentX() + " " + i.getParentY());
-        }
-        println("---");
+//        for ( i <- queue)
+//        {
+//            println(i.getX() + " " + i.getY() + " Parent " + i.getParentX() + " " + i.getParentY());
+//        }
+//        println("---");
     }
     
     def moveToParent () = {
@@ -232,7 +232,7 @@ object DecisionFactory {
         var numAddedVertices : Int = 0;
       
         //Add all surrounding Vertices (of the current one)
-        if ( !( queue.exists { a => a.getX() == currentX && a.getY() == currentY + 1 } ) ) //If grid Vertex Up 1 square is not in the queue
+        if ( !( queue.exists { a => a.getX() == currentX && a.getY() == currentY + 1 } ) && !( visited.exists { b => b.getX() == currentX && b.getY() == currentY + 1 } ) ) //If grid Vertex Up 1 square is not in the queue
         {
             var v : Vertex = new Vertex(currentX, currentY + 1, currentX, currentY); //Create Vertex
             queue.append(v); //Append Vertex
@@ -240,7 +240,7 @@ object DecisionFactory {
             
             visited.append(v);
         }
-        if ( !( queue.exists { a => a.getX() == currentX + 1 && a.getY() == currentY } ) ) //If grid Vertex Right 1 square is not in the queue
+        if ( !( queue.exists { a => a.getX() == currentX + 1 && a.getY() == currentY } ) && !( visited.exists { b => b.getX() == currentX + 1 && b.getY() == currentY } ) ) //If grid Vertex Right 1 square is not in the queue
         {
             var v : Vertex = new Vertex(currentX + 1, currentY, currentX, currentY); //Create Vertex
             queue.append(v); //Append Vertex
@@ -248,7 +248,7 @@ object DecisionFactory {
             
             visited.append(v);
         }
-        if ( !( queue.exists { a => a.getX() == currentX && a.getY() == currentY - 1 } ) ) //If grid Vertex Down 1 square is not in the queue
+        if ( !( queue.exists { a => a.getX() == currentX && a.getY() == currentY - 1 } ) && !( visited.exists { b => b.getX() == currentX && b.getY() == currentY - 1 } ) ) //If grid Vertex Down 1 square is not in the queue
         {
             var v : Vertex = new Vertex(currentX, currentY - 1, currentX, currentY); //Create Vertex
             queue.append(v); //Append Vertex
@@ -256,7 +256,7 @@ object DecisionFactory {
             
             visited.append(v);
         }
-        if ( !( queue.exists { a => a.getX() == currentX - 1 && a.getY() == currentY } ) ) //If grid Vertex Left 1 square is not in the queue
+        if ( !( queue.exists { a => a.getX() == currentX - 1 && a.getY() == currentY } ) && !( visited.exists { b => b.getX() == currentX - 1 && b.getY() == currentY } ) ) //If grid Vertex Left 1 square is not in the queue
         {
             var v : Vertex = new Vertex(currentX - 1, currentY, currentX, currentY); //Create Vertex
             queue.append(v); //Append Vertex
@@ -265,10 +265,10 @@ object DecisionFactory {
             visited.append(v);
         }
         
-        for ( i <- queue)
-        {
-            println(i.getX() + " " + i.getY() + " Parent " + i.getParentX() + " " + i.getParentY());
-        }
+//        for ( i <- queue)
+//        {
+//            println(i.getX() + " " + i.getY() + " Parent " + i.getParentX() + " " + i.getParentY());
+//        }
         
         return numAddedVertices;
     }
