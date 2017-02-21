@@ -37,7 +37,7 @@ public class Framework {
 		
 		initalizeGrid(numRows, numCols);
 		
-		setPortal(numRows - 3, numCols - 1);
+		setPortal(3,4); //numRows - 3, numCols - 1);
 		
 		initalizeStatisticsTextLabels();
 		
@@ -184,18 +184,20 @@ public class Framework {
 	}
 	
 	private void switchBetweenWallandEmpty (MouseEvent e) {
-		
-		if (((JLabel)e.getSource()).getIcon().toString() == GameboardPiece.getWall())
-    	{
-			((JLabel)e.getSource()).setIcon(new ImageIcon( GameboardPiece.getEmpty() ));
-    	}
-    	else if (((JLabel)e.getSource()).getIcon().toString() == GameboardPiece.getEmpty() )
-    	{
-    		((JLabel)e.getSource()).setIcon(new ImageIcon( GameboardPiece.getWall() ));
-    	}
-    	else {
-    		
-    	}
+		if (MasterGameProcess.getIsPlay() == false)
+		{
+			if (((JLabel)e.getSource()).getIcon().toString() == GameboardPiece.getWall())
+	    	{
+				((JLabel)e.getSource()).setIcon(new ImageIcon( GameboardPiece.getEmpty() ));
+	    	}
+	    	else if (((JLabel)e.getSource()).getIcon().toString() == GameboardPiece.getEmpty() )
+	    	{
+	    		((JLabel)e.getSource()).setIcon(new ImageIcon( GameboardPiece.getWall() ));
+	    	}
+	    	else {
+	    		
+	    	}
+		}
 	}
 	
 }
