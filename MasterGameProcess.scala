@@ -8,7 +8,7 @@ object MasterGameProcess {
    //var playerPosition : PlayerPosition = _;
    var strDirection : String = _;
    var signal : Int = _;
-   var isPlay = false;
+   var isPlay : Boolean = false;
    var isPause = false;
    
    var frame = new JFrame();
@@ -17,9 +17,9 @@ object MasterGameProcess {
        var foundPortal: Boolean = false;
        var numberOfMoves: Int = 0;
        
-       var framework = new Framework(25,60);
+       var framework = new Framework(16,16);
        framework.setPlayerPosition(5, 5, 5, 5);
-       framework.setTextJLabel_Location(); 
+       framework.setTextJLabel_Location();
        
        while (! isPlay)
        {
@@ -91,13 +91,15 @@ object MasterGameProcess {
            framework.setTextJLabel_Signal(signal);
            framework.setTextJLabel_MoveCount(numberOfMoves.toString());
            
+//           isPause = true;
+           
            while (isPause)
            {
              Thread.sleep(30);
            }
            
            
-           Thread.sleep(30);
+           Thread.sleep(20);
        }
    }
    
@@ -107,6 +109,10 @@ object MasterGameProcess {
    
    def pushPause () {
        isPause = !isPause;
+   }
+   
+   def getIsPlay () : Boolean = {
+       return isPlay;
    }
    
 }
