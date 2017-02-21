@@ -1,27 +1,37 @@
 import java.lang;
 import javax.swing.JFrame
 
+/** Author: Eric Gerardi
+ *  
+ *  The MasterGameProcess Object supports experiments with agents.  This object uses a 
+ *  Discrete Time Process (while loop) that asks for a decision from the DecisionFactory,
+ *  updates the graphical user interface grid (Framework), and returns a signal (success/fail)
+ *  back to the DecisionFactory.
+ *  
+ */
+
 object MasterGameProcess {
    var decision : Int = _;
    var changeRow : Int = _;
    var changeCol : Int = _;
-   //var playerPosition : PlayerPosition = _;
    var strDirection : String = _;
    var signal : Int = _;
    var isPlay : Boolean = false;
    var isPause = false;
    
+   //Create Program Window
    var frame = new JFrame();
    
    def main(args: Array[String]) {
        var foundPortal: Boolean = false;
        var numberOfMoves: Int = 0;
        
+       //Create and Initialize Framework
        var framework = new Framework(16,16);
        framework.setPlayerPosition(5, 5, 5, 5);
        framework.setTextJLabel_Location();
        
-       while (! isPlay)
+       while (! isPlay) //Prevent Game from starting until User presses play
        {
          Thread.sleep(30);
        }
@@ -82,18 +92,17 @@ object MasterGameProcess {
                foundPortal = true;
            }
            
-           DecisionFactory.receiveSignal(signal);
+           DecisionFactory.receiveSignal(signal); //Send signal (success/fail) to DecisionFactory
            
-           numberOfMoves = numberOfMoves + 1;
+           numberOfMoves = numberOfMoves + 1; //Increment number of moves
            
+           //Refresh/Update Current Framework Statistics
            framework.setTextJLabel_MoveDirection(strDirection);
            framework.setTextJLabel_Location();
            framework.setTextJLabel_Signal(signal);
            framework.setTextJLabel_MoveCount(numberOfMoves.toString());
            
-//           isPause = true;
-           
-           while (isPause)
+           while (isPause) //Used to Pause Game
            {
              Thread.sleep(30);
            }
@@ -103,14 +112,17 @@ object MasterGameProcess {
        }
    }
    
+   //Used by Framework to modify isPlay
    def pushPlay () {
        isPlay = true;
    }
    
+   //Used by Framework to modify isPause
    def pushPause () {
        isPause = !isPause;
    }
    
+   //Used by Framework to get isPlay
    def getIsPlay () : Boolean = {
        return isPlay;
    }
