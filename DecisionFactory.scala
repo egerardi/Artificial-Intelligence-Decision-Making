@@ -1,7 +1,9 @@
 //package mazeRunner
 import Array._
+import java.util.Stack;
 
 import scala.util.Random
+//import scala.scalajs.js
 import scala.collection.mutable.ArrayBuffer  // For mutable, scalable arrays
 
 /** Author: Eric Gerardi
@@ -15,139 +17,281 @@ import scala.collection.mutable.ArrayBuffer  // For mutable, scalable arrays
 // Main decision factory object:
 object DecisionFactory {
 
-  // Mutable object attributes:
-  var lastSignal = -999 // note: last signal of -999 means the event has just started
-  var lasLastSignal = -999;
-  var lastMove = 0      // of possibility utility
-  var lastLastMove = 0;
-  var didFirstDown = false;
-  var hitFirstDown = false;
-  var alongWall = 0; //Same integers as lastMove, but 0 == Not along wall
-  var directionCounter : Int = 0;
-  var upDownLeftRight = ofDim[Int](4,5);
-      upDownLeftRight(0)(0) = 0; upDownLeftRight(0)(1) = 1; upDownLeftRight(0)(2) = 2; upDownLeftRight(0)(3) = 3; upDownLeftRight(0)(4) = 4; //Stay Up Down Left Right
-      upDownLeftRight(1)(0) = 0; upDownLeftRight(1)(1) = 1; upDownLeftRight(1)(2) = 2; upDownLeftRight(1)(3) = 4; upDownLeftRight(1)(4) = 3; //Stay Up Down Right Left
-      upDownLeftRight(2)(0) = 0; upDownLeftRight(2)(1) = 4; upDownLeftRight(2)(2) = 3; upDownLeftRight(2)(3) = 2; upDownLeftRight(2)(4) = 1; //Stay Right Left Down Up
-      upDownLeftRight(3)(0) = 0; upDownLeftRight(3)(1) = 4; upDownLeftRight(3)(2) = 3; upDownLeftRight(3)(3) = 1; upDownLeftRight(3)(4) = 2; //Stay Right Left Up Down
-  
-  // Log level (to console)
-  var logLevel = 1
-
-  // Main Decision engine:
-  //   Direction choices to return:
-  //   0 - stay (don't move)
-  //   1 - move up
-  //   2 - move down
-  //   3 - move left
-  //   4 - move right
-  def Decision() : Int = {
-
-    zigzagWalk();
-  }
-
-  // Signal channel for receiving results about decisions and the environment:
-  //   Signals are:
-  //   -999 - starting round
-  //   -1   - last movement decision failed
-  //   1    - last movement decision worked
-  def receiveSignal( sig: Int ) = {
-//    sig match {
-//      case -1 => { if (logLevel == 1) println("SIG REC: wall collision") }
-//      case 1  => { if (logLevel == 1) println("SIG REC: successful move"); }
-//      case 2  => { if (logLevel == 1) println("SIG REC: PORTALATED!!"); }
-//      case _  => { ;; }
-//    }
-
-    // Record latest signal in attribute:
-    lasLastSignal = lastSignal;
-    lastSignal = sig 
-  }  
-
-  
-  // Internal decision function, spiral walk
-  private def zigzagWalk() : Int = {
-
-    var temp = lastMove;
+    // Mutable object attributes:
+    var lastSignal = -999 // note: last signal of -999 means the event has just started
+    var lastMove = 0      // of possibility utility
+    var currentX : Int = 0;
+    var currentY : Int = 0;
+    var tempX : Int = 0;
+    var tempY : Int = 0;
+    var isBackToParent : Boolean = false;
     
-    if (lastSignal == -1 && lasLastSignal == -1)
-    {
-        directionCounter = directionCounter + 1;
+    
+    //Array Buffer for queue of Vertices
+    var queue = ArrayBuffer[Vertex]();
+    var v : Vertex = new Vertex(0,0,0,0);
+    queue.append(v); //Add first vertex (Player start is considered 0,0)
+    
+    //Array Buffer for queue of Vertices
+    var visited = ArrayBuffer[Vertex]();
+    visited.append(v); //Add first vertex (Player start is considered 0,0)
         
-        if (lastLastMove == 1)
-        {
-            lastMove = 2;
-        }
-        else if (lastLastMove == 2)
-        {
-            lastMove = 1;
-        }
-        else if (lastLastMove == 3)
-        {
-            lastMove = 4;
-        }
-        else if (lastLastMove == 4)
-        {
-            lastMove = 3;
-        }
-        else
-        {
-          
-        }
-        
-        if (directionCounter == 2)
-        {
-            lastMove = 4;
-        }
+    
+    // Log level (to console)
+    var logLevel = 1
+  
+    // Main Decision engine:
+    //   Direction choices to return:
+    //   0 - stay (don't move)
+    //   1 - move up
+    //   2 - move down
+    //   3 - move left
+    //   4 - move right
+    def Decision() : Int = {
+      blindGraph_DepthFirstSearch();
     }
-    else
-    {
-        if (lastSignal == -999) //Beginning move
+  
+    // Signal channel for receiving results about decisions and the environment:
+    //   Signals are:
+    //   -999 - starting round
+    //   -1   - last movement decision failed
+    //   1    - last movement decision worked
+    def receiveSignal( sig: Int ) = {
+  //    sig match {
+  //      case -1 => { if (logLevel == 1) println("SIG REC: wall collision") }
+  //      case 1  => { if (logLevel == 1) println("SIG REC: successful move"); }
+  //      case 2  => { if (logLevel == 1) println("SIG REC: PORTALATED!!"); }
+  //      case _  => { ;; }
+  //    }
+  
+      // Record latest signal in attribute:
+      lastSignal = sig 
+    }  
+  
+    
+    /** Internal decision function
+     *  Uses Depth First Search to blindly build the graph
+     */
+    def blindGraph_DepthFirstSearch () : Int = {       
+      
+        if (lastSignal == -999) //Last Move: None (Start)
         {
-            lastMove = upDownLeftRight(directionCounter)(3); //Left
+            addSurroundingVertices();
+            
+            moveToLastInQueue();
         }
-        else
+        else if (lastSignal == -1) //Last Move: Fail
         {
-            if (lastSignal == -1) //If last movement decision failed
+            pop();
+            
+            if (currentX == queue.last.getX() && currentY == queue.last.getY()) //If Current Position == Last in queue
             {
-                if (didFirstDown == false)
-                {
-                    lastMove = upDownLeftRight(directionCounter)(2); //Down
-                    didFirstDown = true;
-                }
-                else if (didFirstDown == true && hitFirstDown == false)
-                {
-                    lastMove = upDownLeftRight(directionCounter)(1);  //Up
-                    hitFirstDown = true;
-                }
-                else if (lastMove == upDownLeftRight(directionCounter)(1) || lastMove == upDownLeftRight(directionCounter)(2)) //If lastMove was Up or Down
-                {
-                    lastMove = upDownLeftRight(directionCounter)(4); //Right
-                }
-                else 
-                {
-                  
-                }           
+                moveToParent();
+                pop();
             }
             else 
             {
-                if (lastMove == upDownLeftRight(directionCounter)(4))
-                {
-                    if (lastLastMove == upDownLeftRight(directionCounter)(1)) //If lastMove right && lastLastMove up
-                    {
-                        lastMove = upDownLeftRight(directionCounter)(2); //Down
-                    }
-                    else //(lastLastMove == 2) //If lastMove right && lastLastMove down
-                    {
-                        lastMove = upDownLeftRight(directionCounter)(1);  //Up
-                    }
-                }  
+                moveToLastInQueue();
             }
+        }
+        else //Last Move: Success
+        {
+            //Save new Current position
+            currentX = tempX;
+            currentY = tempY;
+            
+            if (isBackToParent)
+            {
+                if ( currentX != queue.last.getX() || currentY != queue.last.getY() ) //If Current Position != Last in queue
+                {
+                    moveToLastInQueue();
+                }
+                else 
+                {
+                    moveToParent();
+                    pop();
+                }
+            }
+            else 
+            {         
+                val numAddedVertices : Int = addSurroundingVertices();
+                
+                if (numAddedVertices == 0) //If there are no vertices to add
+                {
+                    moveToParent();
+                    pop();
+                }
+                else 
+                {
+                    moveToLastInQueue();
+                }
+            }
+        }
+        
+        lastMove // Returns newly created move
+    }
+    
+
+    /**	Decides how to move character to the last Vertex in the queue
+     * 	Stores decision in lastMove
+     *	Stores current X and Y in temp X and Y
+     */
+    def moveToLastInQueue () = {
+        isBackToParent = false;
+        
+        //Move Character according to last Vertex
+        if (queue.last.getX() == currentX && queue.last.getY() == currentY + 1)
+        {
+            lastMove = 1; //Move Up
+            tempX = currentX;
+            tempY = currentY + 1;
+        }
+        else if (queue.last.getX() == currentX && queue.last.getY() == currentY - 1)
+        {
+            lastMove = 2; //Move Down
+            tempX = currentX;
+            tempY = currentY - 1;
+        }
+        else if (queue.last.getX() == currentX - 1 && queue.last.getY() == currentY)
+        {
+            lastMove = 3; //Move Left
+            tempX = currentX - 1;
+            tempY = currentY;
+        }
+        else if (queue.last.getX() == currentX + 1 && queue.last.getY() == currentY)
+        {
+            lastMove = 4; //Move Right
+            tempX = currentX + 1;
+            tempY = currentY;
+        }
+        else {
+            lastMove = 0;
         }
     }
     
-    lastLastMove = temp;
     
-    // Returns newly created move:
-    lastMove
-  }  
+    //Removes last element from queue
+    def pop () = {
+        queue.remove(queue.length - 1);
+    }
+    
+    
+    /**	Decides how to move character back to parent Vertex
+     *  Stores decision in lastMove
+     *	Stores current X and Y in temp X and Y
+     */
+    def moveToParent () = {
+        isBackToParent = true;
+        
+        //Move Character according to last Vertex
+        if (queue.last.getParentX() == currentX && queue.last.getParentY() == currentY + 1)
+        {
+            lastMove = 1; //Move Up
+            tempX = currentX;
+            tempY = currentY + 1;
+        }
+        else if (queue.last.getParentX() == currentX && queue.last.getParentY() == currentY - 1)
+        {
+            lastMove = 2; //Move Down
+            tempX = currentX;
+            tempY = currentY - 1;
+        }
+        else if (queue.last.getParentX() == currentX - 1 && queue.last.getParentY() == currentY)
+        {
+            lastMove = 3; //Move Left
+            tempX = currentX - 1;
+            tempY = currentY;
+        }
+        else if (queue.last.getParentX() == currentX + 1 && queue.last.getParentY() == currentY)
+        {
+            lastMove = 4; //Move Right
+            tempX = currentX + 1;
+            tempY = currentY;
+        }
+        else {
+            lastMove = 0;
+        }       
+     
+    }
+    
+    
+    /**	Attempts to add (to the queue) each of the Vertices surrounding the current Vertex
+    *		Returns number of added Vertices
+    */
+    def addSurroundingVertices () : Int = {
+        var numAddedVertices : Int = 0;
+      
+        //Add all surrounding Vertices (of the current one)
+        if ( !( queue.exists { a => a.getX() == currentX && a.getY() == currentY + 1 } ) && !( visited.exists { b => b.getX() == currentX && b.getY() == currentY + 1 } ) ) //If grid Vertex Up 1 square is not in the queue
+        {
+            var v : Vertex = new Vertex(currentX, currentY + 1, currentX, currentY); //Create Vertex
+            queue.append(v); //Append Vertex
+            numAddedVertices = numAddedVertices + 1;
+            
+            visited.append(v);
+        }
+        if ( !( queue.exists { a => a.getX() == currentX + 1 && a.getY() == currentY } ) && !( visited.exists { b => b.getX() == currentX + 1 && b.getY() == currentY } ) ) //If grid Vertex Right 1 square is not in the queue
+        {
+            var v : Vertex = new Vertex(currentX + 1, currentY, currentX, currentY); //Create Vertex
+            queue.append(v); //Append Vertex
+            numAddedVertices = numAddedVertices + 1;
+            
+            visited.append(v);
+        }
+        if ( !( queue.exists { a => a.getX() == currentX && a.getY() == currentY - 1 } ) && !( visited.exists { b => b.getX() == currentX && b.getY() == currentY - 1 } ) ) //If grid Vertex Down 1 square is not in the queue
+        {
+            var v : Vertex = new Vertex(currentX, currentY - 1, currentX, currentY); //Create Vertex
+            queue.append(v); //Append Vertex
+            numAddedVertices = numAddedVertices + 1;
+            
+            visited.append(v);
+        }
+        if ( !( queue.exists { a => a.getX() == currentX - 1 && a.getY() == currentY } ) && !( visited.exists { b => b.getX() == currentX - 1 && b.getY() == currentY } ) ) //If grid Vertex Left 1 square is not in the queue
+        {
+            var v : Vertex = new Vertex(currentX - 1, currentY, currentX, currentY); //Create Vertex
+            queue.append(v); //Append Vertex
+            numAddedVertices = numAddedVertices + 1;
+            
+            visited.append(v);
+        }
+        
+        return numAddedVertices;
+    }
+    
+    
+    /**	Vertex or graph point
+    *		Stores x and y axis
+    *		And Parent x and y axis
+    */
+    class Vertex ( xAxis : Int, yAxis : Int, xParent : Int, yParent : Int) {
+        private var x : Int = xAxis;
+        private var y : Int = yAxis;
+        private var parentX : Int = xParent;
+        private var parentY : Int = yParent;
+        
+        
+        def getX () : Int = {
+          return x;
+        }
+        def setX (newX : Int) {
+          x = newX;
+        }
+        
+        def getY () : Int = {
+          return y;
+        }
+        def setY (newY : Int) {
+          y = newY;
+        }
+        
+        
+        def getParentX () : Int = {
+          return parentX;
+        }
+        def getParentY () : Int = {
+          return parentY;
+        }
+    }
 }
+
+
