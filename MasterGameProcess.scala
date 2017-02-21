@@ -112,12 +112,12 @@ object MasterGameProcess {
        }
    }
    
-   //Used by Framework to modify isPlay
+   //Used by Framework to modify isPlay (Start)
    def pushPlay () {
        isPlay = true;
    }
    
-   //Used by Framework to modify isPause
+   //Used by Framework to modify isPause (Pause and Play again)
    def pushPause () {
        isPause = !isPause;
    }
