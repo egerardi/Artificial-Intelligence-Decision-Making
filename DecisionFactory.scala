@@ -82,25 +82,22 @@ object DecisionFactory {
     
     // Internal decision function
     def blindGraph_DepthFirstSearch () : Int = {    
-        currentX = tempX;
-        currentY = tempY;
+              
       
-        println("Current: " + queue.last.getX() + " " + queue.last.getY());
-      
-        if (lastMove == -999) //Last Move: None (Start)
+        if (lastSignal == -999) //Last Move: None (Start)
         {
             addSurroundingVertices();
             
             moveToLastInQueue();
         }
-        else if (lastMove == -1) //Last Move: Fail
+        else if (lastSignal == -1) //Last Move: Fail
         {
             pop();
             
             if (currentX == queue.last.getX() && currentY == queue.last.getY()) //If Current Position == Last in queue
             {
-                pop();
                 moveToParent();
+                pop();
             }
             else 
             {
@@ -109,6 +106,11 @@ object DecisionFactory {
         }
         else //Last Move: Success
         {          
+            currentX = tempX;
+            currentY = tempY;
+          
+            println("Current: " + queue.last.getX() + " " + queue.last.getY());
+            
             if (isBackToParent)
             {
                 if ( currentX != queue.last.getX() || currentY != queue.last.getY() ) //If Current Position != Last in queue
@@ -117,8 +119,8 @@ object DecisionFactory {
                 }
                 else 
                 {
-                    pop();
                     moveToParent();
+                    pop();
                 }
             }
             else 
@@ -127,8 +129,8 @@ object DecisionFactory {
                 
                 if (numAddedVertices == 0) //If there are no vertices to add
                 {
-                    pop();
                     moveToParent();
+                    pop();
                 }
                 else 
                 {
@@ -184,8 +186,9 @@ object DecisionFactory {
         
         for ( i <- queue)
         {
-            println(i.getX() + " " + i.getY());
+            println(i.getX() + " " + i.getY() + " Parent " + i.getParentX() + " " + i.getParentY());
         }
+        println("---");
     }
     
     def moveToParent () = {
@@ -264,7 +267,7 @@ object DecisionFactory {
         
         for ( i <- queue)
         {
-            println(i.getX() + " " + i.getY());
+            println(i.getX() + " " + i.getY() + " Parent " + i.getParentX() + " " + i.getParentY());
         }
         
         return numAddedVertices;
@@ -277,8 +280,8 @@ object DecisionFactory {
     class Vertex ( xAxis : Int, yAxis : Int, xParent : Int, yParent : Int) {
         private var x : Int = xAxis;
         private var y : Int = yAxis;
-        private var parentX : Int = xAxis;
-        private var parentY : Int = yAxis;
+        private var parentX : Int = xParent;
+        private var parentY : Int = yParent;
         
         
         def getX () : Int = {
