@@ -19,30 +19,22 @@ object DecisionFactory {
 
     // Mutable object attributes:
     var lastSignal = -999 // note: last signal of -999 means the event has just started
-    var lasLastSignal = -999;
     var lastMove = 0      // of possibility utility
-    var lastLastMove = 0;
-    var alongWall = 0; //Same integers as lastMove, but 0 == Not along wall
-    var directionCounter : Int = 0;
-    var upDownLeftRight = ofDim[Int](4,5);
     var currentX : Int = 0;
     var currentY : Int = 0;
     var tempX : Int = 0;
     var tempY : Int = 0;
-    var threeToPop : Int = 0;
     var isBackToParent : Boolean = false;
     
     
     //Array Buffer for queue of Vertices
     var queue = ArrayBuffer[Vertex]();
-    //Add first vertex (Player start is considered 0,0)
     var v : Vertex = new Vertex(0,0,0,0);
-    queue.append(v);
+    queue.append(v); //Add first vertex (Player start is considered 0,0)
     
     //Array Buffer for queue of Vertices
     var visited = ArrayBuffer[Vertex]();
-    //Add first vertex (Player start is considered 0,0)
-    visited.append(v);
+    visited.append(v); //Add first vertex (Player start is considered 0,0)
         
     
     // Log level (to console)
@@ -73,16 +65,14 @@ object DecisionFactory {
   //    }
   
       // Record latest signal in attribute:
-      lasLastSignal = lastSignal;
       lastSignal = sig 
-      println("Signal: " + lastSignal);
-      println();
     }  
   
     
-    // Internal decision function
-    def blindGraph_DepthFirstSearch () : Int = {    
-              
+    /** Internal decision function
+     *  Uses Depth First Search to blindly build the graph
+     */
+    def blindGraph_DepthFirstSearch () : Int = {       
       
         if (lastSignal == -999) //Last Move: None (Start)
         {
@@ -105,11 +95,10 @@ object DecisionFactory {
             }
         }
         else //Last Move: Success
-        {          
+        {
+            //Save new Current position
             currentX = tempX;
             currentY = tempY;
-          
-            println("Current: " + queue.last.getX() + " " + queue.last.getY());
             
             if (isBackToParent)
             {
@@ -137,15 +126,16 @@ object DecisionFactory {
                     moveToLastInQueue();
                 }
             }
-            
-            
         }
-        // Returns newly created move:
-        lastMove
+        
+        lastMove // Returns newly created move
     }
     
 
-    
+    /**	Decides how to move character to the last Vertex in the queue
+     * 	Stores decision in lastMove
+     *	Stores current X and Y in temp X and Y
+     */
     def moveToLastInQueue () = {
         isBackToParent = false;
         
@@ -183,14 +173,13 @@ object DecisionFactory {
     //Removes last element from queue
     def pop () = {
         queue.remove(queue.length - 1);
-        
-//        for ( i <- queue)
-//        {
-//            println(i.getX() + " " + i.getY() + " Parent " + i.getParentX() + " " + i.getParentY());
-//        }
-//        println("---");
     }
     
+    
+    /**	Decides how to move character back to parent Vertex
+     *  Stores decision in lastMove
+     *	Stores current X and Y in temp X and Y
+     */
     def moveToParent () = {
         isBackToParent = true;
         
@@ -226,8 +215,9 @@ object DecisionFactory {
     }
     
     
-    //Attempts to add (to the queue) each of the Vertices surrounding the current Vertex
-    //Returns number of added Vertices
+    /**	Attempts to add (to the queue) each of the Vertices surrounding the current Vertex
+    *		Returns number of added Vertices
+    */
     def addSurroundingVertices () : Int = {
         var numAddedVertices : Int = 0;
       
@@ -265,18 +255,14 @@ object DecisionFactory {
             visited.append(v);
         }
         
-//        for ( i <- queue)
-//        {
-//            println(i.getX() + " " + i.getY() + " Parent " + i.getParentX() + " " + i.getParentY());
-//        }
-        
         return numAddedVertices;
     }
     
     
-    //Vertex or graph point
-    //Stores x and y axis
-    //And Parent x and y axis
+    /**	Vertex or graph point
+    *		Stores x and y axis
+    *		And Parent x and y axis
+    */
     class Vertex ( xAxis : Int, yAxis : Int, xParent : Int, yParent : Int) {
         private var x : Int = xAxis;
         private var y : Int = yAxis;
