@@ -20,15 +20,15 @@ object MasterGameProcess {
    var isPause = false;
    
    //Create Program Window
-   var frame = new JFrame();
+   var frame = new JFrame("Eric Gerardi: Artificial Intelligence Decision Making");
    
    def main(args: Array[String]) {
        var foundPortal: Boolean = false;
        var numberOfMoves: Int = 0;
        
        //Create and Initialize Framework
-       var framework = new Framework(16,16);
-       framework.setPlayerPosition(5, 5, 5, 5);
+       var framework = new Framework(16,30);
+       framework.setPlayerPosition(5, 5, 12, 14);
        framework.setTextJLabel_Location();
        
        while (! isPlay) //Prevent Game from starting until User presses play
@@ -108,7 +108,7 @@ object MasterGameProcess {
            }
            
            
-           Thread.sleep(20);
+           Thread.sleep(50);
        }
    }
    
