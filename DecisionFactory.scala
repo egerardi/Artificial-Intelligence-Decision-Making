@@ -27,12 +27,12 @@ object DecisionFactory {
     var isBackToParent : Boolean = false;
     
     
-    //Array Buffer for queue of Vertices
+    //Array Buffer for stack of Vertices
     var queue = ArrayBuffer[Vertex]();
     var v : Vertex = new Vertex(0,0,0,0);
     queue.append(v); //Add first vertex (Player start is considered 0,0)
     
-    //Array Buffer for queue of Vertices
+    //Array Buffer for stack of Vertices
     var visited = ArrayBuffer[Vertex]();
     visited.append(v); //Add first vertex (Player start is considered 0,0)
         
@@ -78,20 +78,20 @@ object DecisionFactory {
         {
             addSurroundingVertices();
             
-            moveToLastInQueue();
+            moveToLastInStack();
         }
         else if (lastSignal == -1) //Last Move: Fail
         {
             pop();
             
-            if (currentX == queue.last.getX() && currentY == queue.last.getY()) //If Current Position == Last in queue
+            if (currentX == queue.last.getX() && currentY == queue.last.getY()) //If Current Position == Last in stack
             {
                 moveToParent();
                 pop();
             }
             else 
             {
-                moveToLastInQueue();
+                moveToLastInStack();
             }
         }
         else //Last Move: Success
@@ -102,9 +102,9 @@ object DecisionFactory {
             
             if (isBackToParent)
             {
-                if ( currentX != queue.last.getX() || currentY != queue.last.getY() ) //If Current Position != Last in queue
+                if ( currentX != queue.last.getX() || currentY != queue.last.getY() ) //If Current Position != Last in stack
                 {
-                    moveToLastInQueue();
+                    moveToLastInStack();
                 }
                 else 
                 {
@@ -123,7 +123,7 @@ object DecisionFactory {
                 }
                 else 
                 {
-                    moveToLastInQueue();
+                    moveToLastInStack();
                 }
             }
         }
@@ -132,11 +132,11 @@ object DecisionFactory {
     }
     
 
-    /**	Decides how to move character to the last Vertex in the queue
+    /**	Decides how to move character to the last Vertex in the stack
      * 	Stores decision in lastMove
      *	Stores current X and Y in temp X and Y
      */
-    def moveToLastInQueue () = {
+    def moveToLastInStack () = {
         isBackToParent = false;
         
         //Move Character according to last Vertex
@@ -170,7 +170,7 @@ object DecisionFactory {
     }
     
     
-    //Removes last element from queue
+    //Removes last element from stack
     def pop () = {
         queue.remove(queue.length - 1);
     }
@@ -215,14 +215,14 @@ object DecisionFactory {
     }
     
     
-    /**	Attempts to add (to the queue) each of the Vertices surrounding the current Vertex
+    /**	Attempts to add (to the stack) each of the Vertices surrounding the current Vertex
     *		Returns number of added Vertices
     */
     def addSurroundingVertices () : Int = {
         var numAddedVertices : Int = 0;
       
         //Add all surrounding Vertices (of the current one)
-        if ( !( queue.exists { a => a.getX() == currentX && a.getY() == currentY + 1 } ) && !( visited.exists { b => b.getX() == currentX && b.getY() == currentY + 1 } ) ) //If grid Vertex Up 1 square is not in the queue
+        if ( !( queue.exists { a => a.getX() == currentX && a.getY() == currentY + 1 } ) && !( visited.exists { b => b.getX() == currentX && b.getY() == currentY + 1 } ) ) //If grid Vertex Up 1 square is not in the stack
         {
             var v : Vertex = new Vertex(currentX, currentY + 1, currentX, currentY); //Create Vertex
             queue.append(v); //Append Vertex
@@ -230,7 +230,7 @@ object DecisionFactory {
             
             visited.append(v);
         }
-        if ( !( queue.exists { a => a.getX() == currentX + 1 && a.getY() == currentY } ) && !( visited.exists { b => b.getX() == currentX + 1 && b.getY() == currentY } ) ) //If grid Vertex Right 1 square is not in the queue
+        if ( !( queue.exists { a => a.getX() == currentX + 1 && a.getY() == currentY } ) && !( visited.exists { b => b.getX() == currentX + 1 && b.getY() == currentY } ) ) //If grid Vertex Right 1 square is not in the stack
         {
             var v : Vertex = new Vertex(currentX + 1, currentY, currentX, currentY); //Create Vertex
             queue.append(v); //Append Vertex
@@ -238,7 +238,7 @@ object DecisionFactory {
             
             visited.append(v);
         }
-        if ( !( queue.exists { a => a.getX() == currentX && a.getY() == currentY - 1 } ) && !( visited.exists { b => b.getX() == currentX && b.getY() == currentY - 1 } ) ) //If grid Vertex Down 1 square is not in the queue
+        if ( !( queue.exists { a => a.getX() == currentX && a.getY() == currentY - 1 } ) && !( visited.exists { b => b.getX() == currentX && b.getY() == currentY - 1 } ) ) //If grid Vertex Down 1 square is not in the stack
         {
             var v : Vertex = new Vertex(currentX, currentY - 1, currentX, currentY); //Create Vertex
             queue.append(v); //Append Vertex
@@ -246,7 +246,7 @@ object DecisionFactory {
             
             visited.append(v);
         }
-        if ( !( queue.exists { a => a.getX() == currentX - 1 && a.getY() == currentY } ) && !( visited.exists { b => b.getX() == currentX - 1 && b.getY() == currentY } ) ) //If grid Vertex Left 1 square is not in the queue
+        if ( !( queue.exists { a => a.getX() == currentX - 1 && a.getY() == currentY } ) && !( visited.exists { b => b.getX() == currentX - 1 && b.getY() == currentY } ) ) //If grid Vertex Left 1 square is not in the stack
         {
             var v : Vertex = new Vertex(currentX - 1, currentY, currentX, currentY); //Create Vertex
             queue.append(v); //Append Vertex
