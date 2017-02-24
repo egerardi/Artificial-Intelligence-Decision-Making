@@ -25,7 +25,7 @@ object DecisionFactory {
     var tempX : Int = 0;
     var tempY : Int = 0;
     var isBackToParent : Boolean = false;
-    
+    var attemptNum : Int = 1;
     
     //Array Buffer for stack of Vertices
     var stack = ArrayBuffer[Vertex]();
@@ -48,7 +48,23 @@ object DecisionFactory {
     //   3 - move left
     //   4 - move right
     def Decision() : Int = {
-      blindGraph_DepthFirstSearch();
+        if (lastSignal == 2) //If lastSignal == Portaled
+        {
+            attemptNum = attemptNum + 1; 
+        }
+         
+        if (attemptNum == 1) //If this is the first attempt
+        {
+            blindGraph_DepthFirstSearch();
+        }
+        else
+        {
+            for ( i <- stack)
+            {
+                println(i.getX() + " " + i.getY() + " 		Parent " + i.getParentX() + " " + i.getParentY());
+            }
+            return 0;
+        }
     }
   
     // Signal channel for receiving results about decisions and the environment:
