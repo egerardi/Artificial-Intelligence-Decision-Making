@@ -27,6 +27,7 @@ public class Framework {
 	JLabel location;
 	JLabel signal;
 	JLabel moveCount;
+	JLabel moveCount_SecondRun;
 	//Buttons for user to start and pause the game
 	JButton playButton;
 	JButton pauseButton;
@@ -38,7 +39,7 @@ public class Framework {
 		
 		initalizeGrid(numRows, numCols);
 		
-		setPortal(3,4);
+		setPortal(4,14);
 		
 		initalizeStatisticsTextLabels();
 		
@@ -131,8 +132,12 @@ public class Framework {
 		
 		
 		moveCount = new JLabel("Move Count: 0"); //Initialize
-		moveCount.setBounds(0, (gridPieceDimension*numRows) + (gridPieceDimension * 3), gridPieceDimension*numCols, gridPieceDimension); //Set location
+		moveCount.setBounds(0, (gridPieceDimension*numRows) + (gridPieceDimension * 3), gridPieceDimension*(numCols / 2), gridPieceDimension); //Set location
 		MasterGameProcess.frame().add(moveCount); //Add to frame
+		
+		moveCount_SecondRun = new JLabel("Move Count Second Run: 0"); //Initialize
+		moveCount_SecondRun.setBounds(gridPieceDimension*(numCols / 2) + 1, (gridPieceDimension*numRows) + (gridPieceDimension * 3), gridPieceDimension*(numCols / 2), gridPieceDimension); //Set location
+		MasterGameProcess.frame().add(moveCount_SecondRun); //Add to frame
 	}
 	
 	//Update move direction label
@@ -172,6 +177,11 @@ public class Framework {
 	//Update move count label
 	public void setTextJLabel_MoveCount (String s) {
 		moveCount.setText("Move Count: " + s);
+	}
+	
+	//Update move count second run label
+	public void setTextJLabel_MoveCount_SecondRun (String s) {
+		moveCount_SecondRun.setText("Move Count Second Run: " + s);
 	}
 	
 	//Initialize play button
