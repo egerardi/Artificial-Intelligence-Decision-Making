@@ -25,7 +25,9 @@ object DecisionFactory {
     var tempX : Int = 0;
     var tempY : Int = 0;
     var isBackToParent : Boolean = false;
-    
+    var attemptNum : Int = 1;
+    var exists_BackwardsStack : Boolean = false;
+    var indexBackWardsStack : Int = _;
     
     //Array Buffer for stack of Vertices
     var stack = ArrayBuffer[Vertex]();
@@ -35,6 +37,9 @@ object DecisionFactory {
     //Array Buffer for stack of Vertices
     var visited = ArrayBuffer[Vertex]();
     visited.append(v); //Add first vertex (Player start is considered 0,0)
+    
+    //Array Buffer of Vertices to follow "more direct" route to Portal
+    var backwardsStack = ArrayBuffer[Vertex]();
         
     
     // Log level (to console)
@@ -48,7 +53,24 @@ object DecisionFactory {
     //   3 - move left
     //   4 - move right
     def Decision() : Int = {
-      blindGraph_DepthFirstSearch();
+        if (lastSignal == 2) //If lastSignal == Portaled
+        {
+            attemptNum = attemptNum + 1;
+            makeBackwardsStack(); //Create stack of "more direct" route
+            currentX = 0; currentY = 0; //Reset player to 0,0
+            tempX = 0; tempY = 0; //Reset temp to 0,0
+        }
+         
+        if (attemptNum == 1) //If this is the first attempt
+        {
+            blindGraph_DepthFirstSearch();
+        }
+        else
+        {          
+            indexBackWardsStack = indexBackWardsStack - 1;
+            
+            retraceStackBackwards();
+        }
     }
   
     // Signal channel for receiving results about decisions and the environment:
@@ -80,7 +102,7 @@ object DecisionFactory {
             
             moveToLastInStack();
         }
-        else if (lastSignal == -1) //Last Move: Fail
+        else if (lastSignal == -1) //Last Move: Fail (Wall)
         {
             pop();
             
@@ -130,6 +152,48 @@ object DecisionFactory {
         
         lastMove // Returns newly created move
     }
+    
+    
+    /** Internal decision function (For Second Walk [On second walk we know the end point])
+     *  Uses backwardsStack to move in a "more direct" route to the portal
+     */    
+    def retraceStackBackwards () : Int = {
+        
+        currentX = tempX;
+        currentY = tempY;
+        
+        //Move Character according to indexBackWardsStack
+        if (backwardsStack(indexBackWardsStack).getX() == currentX && backwardsStack(indexBackWardsStack).getY() == currentY + 1)
+        {
+            lastMove = 1; //Move Up
+            tempX = currentX;
+            tempY = currentY + 1;
+        }
+        else if (backwardsStack(indexBackWardsStack).getX() == currentX && backwardsStack(indexBackWardsStack).getY() == currentY - 1)
+        {
+            lastMove = 2; //Move Down
+            tempX = currentX;
+            tempY = currentY - 1;
+        }
+        else if (backwardsStack(indexBackWardsStack).getX() == currentX - 1 && backwardsStack(indexBackWardsStack).getY() == currentY)
+        {
+            lastMove = 3; //Move Left
+            tempX = currentX - 1;
+            tempY = currentY;
+        }
+        else if (backwardsStack(indexBackWardsStack).getX() == currentX + 1 && backwardsStack(indexBackWardsStack).getY() == currentY)
+        {
+            lastMove = 4; //Move Right
+            tempX = currentX + 1;
+            tempY = currentY;
+        }
+        else {
+            lastMove = 0;
+        }
+
+        lastMove // Returns newly created move
+    }
+    
     
 
     /**	Decides how to move character to the last Vertex in the stack
@@ -257,6 +321,29 @@ object DecisionFactory {
         
         return numAddedVertices;
     }
+    
+    
+    /**	Builds a list of Vertices from the "more direct" route
+     * 	found earlier using stack
+     */
+    def makeBackwardsStack () {
+      
+        backwardsStack.append(stack(stack.length - 1)); //Save last element in stack
+        
+        
+        while ( !( backwardsStack.last.getX() == 0 && backwardsStack.last.getY() == 0 ) ) //While the last Vertex in backwardsStack is not 0,0
+        {
+            //Get the parent Vertex of the current Vertex from stack
+            var index : Int = stack.indexWhere { a => a.getX() == backwardsStack.last.getParentX() && a.getY() == backwardsStack.last.getParentY() };
+            
+            //Append to backwardsStack
+            backwardsStack.append( stack(index) );
+        }
+        
+        indexBackWardsStack = backwardsStack.length;
+        indexBackWardsStack = indexBackWardsStack - 1;
+    }
+ 
     
     
     /**	Vertex or graph point
