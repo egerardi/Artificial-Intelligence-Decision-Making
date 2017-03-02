@@ -38,7 +38,7 @@ object DecisionFactory {
     var visited = ArrayBuffer[Vertex]();
     visited.append(v); //Add first vertex (Player start is considered 0,0)
     
-    //Array Buffer of Vertices to follow quicker path to Portal
+    //Array Buffer of Vertices to follow "more direct" route to Portal
     var backwardsStack = ArrayBuffer[Vertex]();
         
     
@@ -56,7 +56,9 @@ object DecisionFactory {
         if (lastSignal == 2) //If lastSignal == Portaled
         {
             attemptNum = attemptNum + 1;
-            makeBackwardsStack();
+            makeBackwardsStack(); //Create stack of "more direct" route
+            currentX = 0; currentY = 0; //Reset player to 0,0
+            tempX = 0; tempY = 0; //Reset temp to 0,0
         }
          
         if (attemptNum == 1) //If this is the first attempt
@@ -67,10 +69,7 @@ object DecisionFactory {
         {          
             indexBackWardsStack = indexBackWardsStack - 1;
             
-            
-            
-            
-            return 0;
+            retraceStackBackwards();
         }
     }
   
@@ -156,15 +155,43 @@ object DecisionFactory {
     
     
     /** Internal decision function (For Second Walk [On second walk we know the end point])
-     *  Uses backwardsStack to move in a quicker fashion to the portal
+     *  Uses backwardsStack to move in a "more direct" route to the portal
      */    
     def retraceStackBackwards () : Int = {
         
+        currentX = tempX;
+        currentY = tempY;
         
-        
-        
-        
-        lastMove
+        //Move Character according to indexBackWardsStack
+        if (backwardsStack(indexBackWardsStack).getX() == currentX && backwardsStack(indexBackWardsStack).getY() == currentY + 1)
+        {
+            lastMove = 1; //Move Up
+            tempX = currentX;
+            tempY = currentY + 1;
+        }
+        else if (backwardsStack(indexBackWardsStack).getX() == currentX && backwardsStack(indexBackWardsStack).getY() == currentY - 1)
+        {
+            lastMove = 2; //Move Down
+            tempX = currentX;
+            tempY = currentY - 1;
+        }
+        else if (backwardsStack(indexBackWardsStack).getX() == currentX - 1 && backwardsStack(indexBackWardsStack).getY() == currentY)
+        {
+            lastMove = 3; //Move Left
+            tempX = currentX - 1;
+            tempY = currentY;
+        }
+        else if (backwardsStack(indexBackWardsStack).getX() == currentX + 1 && backwardsStack(indexBackWardsStack).getY() == currentY)
+        {
+            lastMove = 4; //Move Right
+            tempX = currentX + 1;
+            tempY = currentY;
+        }
+        else {
+            lastMove = 0;
+        }
+
+        lastMove // Returns newly created move
     }
     
     
@@ -296,8 +323,8 @@ object DecisionFactory {
     }
     
     
-    /**	Builds a list of Vertices from the quickest path found
-     * 	earlier using stack
+    /**	Builds a list of Vertices from the "more direct" route
+     * 	found earlier using stack
      */
     def makeBackwardsStack () {
       
@@ -313,12 +340,8 @@ object DecisionFactory {
             backwardsStack.append( stack(index) );
         }
         
-                for ( i <- backwardsStack)
-        {
-            println(i.getX() + " " + i.getY() + " 		Parent " + i.getParentX() + " " + i.getParentY());
-        }
-        
-        indexBackWardsStack = backwardsStack.length;        
+        indexBackWardsStack = backwardsStack.length;
+        indexBackWardsStack = indexBackWardsStack - 1;
     }
  
     
