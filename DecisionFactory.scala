@@ -304,13 +304,18 @@ object DecisionFactory {
         backwardsStack.append(stack(stack.length - 1)); //Save last element in stack
         
         
-        while ( !( backwardsStack(backwardsStack.length - 1).getX() == 0 && backwardsStack(backwardsStack.length - 1).getY() == 0 ) ) //While the last Vertex in backwardsStack is not 0,0
+        while ( !( backwardsStack.last.getX() == 0 && backwardsStack.last.getY() == 0 ) ) //While the last Vertex in backwardsStack is not 0,0
         {
             //Get the parent Vertex of the current Vertex from stack
-            var index : Int = stack.indexWhere { a => a.getX() == backwardsStack(backwardsStack.length - 1).getParentX() && a.getY() == backwardsStack(backwardsStack.length - 1).getParentY() };
+            var index : Int = stack.indexWhere { a => a.getX() == backwardsStack.last.getParentX() && a.getY() == backwardsStack.last.getParentY() };
             
             //Append to backwardsStack
             backwardsStack.append( stack(index) );
+        }
+        
+                for ( i <- backwardsStack)
+        {
+            println(i.getX() + " " + i.getY() + " 		Parent " + i.getParentX() + " " + i.getParentY());
         }
         
         indexBackWardsStack = backwardsStack.length;        
