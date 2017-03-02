@@ -26,6 +26,8 @@ object DecisionFactory {
     var tempY : Int = 0;
     var isBackToParent : Boolean = false;
     var attemptNum : Int = 1;
+    var exists_BackwardsStack : Boolean = false;
+    var indexBackWardsStack : Int = _;
     
     //Array Buffer for stack of Vertices
     var stack = ArrayBuffer[Vertex]();
@@ -35,6 +37,9 @@ object DecisionFactory {
     //Array Buffer for stack of Vertices
     var visited = ArrayBuffer[Vertex]();
     visited.append(v); //Add first vertex (Player start is considered 0,0)
+    
+    //Array Buffer of Vertices to follow quicker path to Portal
+    var backwardsStack = ArrayBuffer[Vertex]();
         
     
     // Log level (to console)
@@ -50,7 +55,8 @@ object DecisionFactory {
     def Decision() : Int = {
         if (lastSignal == 2) //If lastSignal == Portaled
         {
-            attemptNum = attemptNum + 1; 
+            attemptNum = attemptNum + 1;
+            makeBackwardsStack();
         }
          
         if (attemptNum == 1) //If this is the first attempt
@@ -58,11 +64,12 @@ object DecisionFactory {
             blindGraph_DepthFirstSearch();
         }
         else
-        {
-            for ( i <- stack)
-            {
-                println(i.getX() + " " + i.getY() + " 		Parent " + i.getParentX() + " " + i.getParentY());
-            }
+        {          
+            indexBackWardsStack = indexBackWardsStack - 1;
+            
+            
+            
+            
             return 0;
         }
     }
@@ -96,7 +103,7 @@ object DecisionFactory {
             
             moveToLastInStack();
         }
-        else if (lastSignal == -1) //Last Move: Fail
+        else if (lastSignal == -1) //Last Move: Fail (Wall)
         {
             pop();
             
@@ -146,6 +153,20 @@ object DecisionFactory {
         
         lastMove // Returns newly created move
     }
+    
+    
+    /** Internal decision function (For Second Walk [On second walk we know the end point])
+     *  Uses backwardsStack to move in a quicker fashion to the portal
+     */    
+    def retraceStackBackwards () : Int = {
+        
+        
+        
+        
+        
+        lastMove
+    }
+    
     
 
     /**	Decides how to move character to the last Vertex in the stack
@@ -273,6 +294,28 @@ object DecisionFactory {
         
         return numAddedVertices;
     }
+    
+    
+    /**	Builds a list of Vertices from the quickest path found
+     * 	earlier using stack
+     */
+    def makeBackwardsStack () {
+      
+        backwardsStack.append(stack(stack.length - 1)); //Save last element in stack
+        
+        
+        while ( !( backwardsStack(backwardsStack.length - 1).getX() == 0 && backwardsStack(backwardsStack.length - 1).getY() == 0 ) ) //While the last Vertex in backwardsStack is not 0,0
+        {
+            //Get the parent Vertex of the current Vertex from stack
+            var index : Int = stack.indexWhere { a => a.getX() == backwardsStack(backwardsStack.length - 1).getParentX() && a.getY() == backwardsStack(backwardsStack.length - 1).getParentY() };
+            
+            //Append to backwardsStack
+            backwardsStack.append( stack(index) );
+        }
+        
+        indexBackWardsStack = backwardsStack.length;        
+    }
+ 
     
     
     /**	Vertex or graph point
